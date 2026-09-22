@@ -2,10 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight, Brain, ShieldCheck, UserRound, FileText, Clock3,
-  UsersRound, BatteryWarning, TrendingUp, Lightbulb, Sprout, HeartHandshake,
+  UsersRound, BatteryWarning, TrendingUp, Lightbulb, Sprout, Play,
 } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
-import { LeadForm } from "@/components/lead-form";
 import { getContent } from "@/lib/content.server";
 
 export const dynamic = "force-dynamic";
@@ -38,7 +37,7 @@ export default async function Home() {
   ]);
 
   return (
-    <main>
+    <main className="home-reference">
       <SiteHeader />
       <section className="hero">
         <div className="hero-copy">
@@ -56,9 +55,9 @@ export default async function Home() {
           </div>
         </div>
         <div className="hero-photo">
-          <Image src="/images/alena-portrait-2.jpg" alt="Команда центра «Путь к себе»" fill priority sizes="(max-width: 800px) 100vw, 55vw" />
-          <div className="hero-quote">Помогаем увидеть<br />точку опоры и роста</div>
-          <div className="hero-location">Владивосток · онлайн</div>
+          <Image src="/images/hero-team-reference.png" alt="Команда психологического центра" fill priority sizes="(max-width: 800px) 100vw, 55vw" />
+          <div className="hero-quote">Помогаем<br />идти по-настоящему —<br />с опорой для бизнеса и семьи</div>
+          <a className="hero-play" href="/o-centre"><span><Play fill="currentColor" /></span><b>Посмотрите<br />о нашем подходе</b></a>
         </div>
       </section>
 
@@ -147,12 +146,7 @@ export default async function Home() {
 
       <section className="consultation-section" id="consultation">
         <div><h2>Перестань выбирать между бизнесом и семьёй</h2><p>Укрепи себя, сохрани близость и создай условия для роста дохода.</p></div>
-        <LeadForm compact source="home-cta" />
-      </section>
-
-      <section className="contact-form-section section-shell-wide">
-        <div className="contact-copy"><span className="section-label">Первый шаг</span><h2>Разберём вашу ситуацию</h2><p>После встречи вы поймёте точку А и Б, увидите короткий путь к результату и получите рекомендацию по формату работы.</p><div className="contact-points"><HeartHandshake /> Бережно и конфиденциально</div></div>
-        <LeadForm source="home-bottom" />
+        <Link className="button button-light" href="/kontakty">Подобрать специалиста <ArrowRight /></Link>
       </section>
       <SiteFooter />
     </main>
