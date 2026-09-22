@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowRight, CalendarDays, Check, MapPin, Phone, Send } from "lucide-react";
+import { ArrowIcon, CalendarIcon, CheckIcon, MapIcon, PhoneIcon, SendIcon } from "@/components/premium-icons";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { LeadForm } from "@/components/lead-form";
 import { getContent } from "@/lib/content.server";
@@ -47,7 +47,7 @@ function Cards({ items, type }: { items: ContentItem[]; type: ContentType }) {
             <h2>{item.title}</h2>
             <p className="card-subtitle">{item.subtitle}</p>
             <p>{item.body}</p>
-            {type !== "review" && <a href="#consultation">Записаться <ArrowRight /></a>}
+            {type !== "review" && <a href="#consultation">Записаться <ArrowIcon /></a>}
           </div>
         </article>
       ))}
@@ -61,7 +61,7 @@ function FounderContent() {
       <div><span className="section-label">О подходе</span><h2>Бизнес не существует отдельно от состояния владельца</h2></div>
       <div className="rich-copy"><p>Алёна Савинова более 20 лет работает с предпринимателями. Она помогает находить скрытые причины стагнации, возвращать ясность и собирать устойчивую систему решений.</p><p>В основе работы — авторский метод формирования ресурсных систем личности, системные расстановки, семейная психотерапия и практический предпринимательский опыт.</p><ul><li>8000+ клиентов по всему миру</li><li>Эксперт федеральных телеканалов</li><li>Сертифицированный системный расстановщик</li><li>Автор книги «Жить ресурсно»</li></ul></div>
     </section>
-    <section className="book-block"><div><span className="section-label">Книга</span><h2>«Жить ресурсно»</h2><p>Книга соединяет психологию ресурса с практиками, которые помогают замечать собственные состояния, возвращать осознанность и менять привычные стратегии.</p><a className="button" href="https://alenasavinova.ru" target="_blank" rel="noreferrer">Приобрести книгу <ArrowRight /></a></div><div className="book-quote">«Ресурс не нужно искать за тридевять земель. Он всегда с вами — важно научиться его видеть и использовать»</div></section>
+    <section className="book-block"><div><span className="section-label">Книга</span><h2>«Жить ресурсно»</h2><p>Книга соединяет психологию ресурса с практиками, которые помогают замечать собственные состояния, возвращать осознанность и менять привычные стратегии.</p><a className="button" href="https://alenasavinova.ru" target="_blank" rel="noreferrer">Приобрести книгу <ArrowIcon /></a></div><div className="book-quote">«Ресурс не нужно искать за тридевять земель. Он всегда с вами — важно научиться его видеть и использовать»</div></section>
   </>;
 }
 
@@ -94,14 +94,14 @@ function CourseContent() {
 function YachtContent() {
   const inclusions = ["Аренда яхты", "Комфортное размещение", "Питание и свежие морепродукты", "Мастер-класс", "Мини-расстановки", "Практические материалы", "Индивидуальные рекомендации"];
   return <>
-    <section className="event-facts"><div><CalendarDays /><strong>15 сентября</strong><span>10:00–17:00</span></div><div><strong>до 10</strong><span>участников</span></div><div><strong>25 000 ₽</strong><span>всё включено</span></div></section>
+    <section className="event-facts"><div><CalendarIcon /><strong>15 сентября</strong><span>10:00–17:00</span></div><div><strong>до 10</strong><span>участников</span></div><div><strong>25 000 ₽</strong><span>всё включено</span></div></section>
     <section className="editorial-split"><div><span className="section-label">О тренинге</span><h2>Остановиться и увидеть свою жизнь с другой точки</h2></div><div className="rich-copy"><p>Все сферы жизни связаны. Внутренний конфликт забирает энергию у отношений, финансов, решений и способности двигаться вперёд.</p><p>На воде легче выйти за привычные границы и заметить то, что теряется в ежедневной спешке. В программе — мастер-класс с Алёной Савиновой, мини-расстановки и индивидуальные рекомендации.</p></div></section>
-    <section className="included-block"><span className="section-label">На борту</span><h2>Всё включено</h2><div>{inclusions.map((item) => <p key={item}><Check />{item}</p>)}</div></section>
+    <section className="included-block"><span className="section-label">На борту</span><h2>Всё включено</h2><div>{inclusions.map((item) => <p key={item}><CheckIcon />{item}</p>)}</div></section>
   </>;
 }
 
 function ContactContent() {
-  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><Phone /> <a href="tel:+79964249049">+7 996 424-90-49</a></p><p><MapPin /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><Send /> <a href="https://t.me/+79964249049">Telegram</a> · <a href="https://vk.ru">ВКонтакте</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Записаться на встречу</h2><LeadForm source="contacts" /></div></section>;
+  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><PhoneIcon /> <a href="tel:+79964249049">+7 996 424-90-49</a></p><p><MapIcon /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><SendIcon /> <a href="https://t.me/+79964249049">Telegram</a> · <a href="https://vk.ru">ВКонтакте</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Записаться на встречу</h2><LeadForm source="contacts" /></div></section>;
 }
 
 function LegalContent({ offer }: { offer: boolean }) {
@@ -115,7 +115,7 @@ export default async function InteriorPage({ params }: { params: Promise<{ slug:
   const items = page.type ? await getContent(page.type) : [];
   return <main>
     <SiteHeader />
-    <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p><a className="button" href="#consultation">Записаться <ArrowRight /></a></div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>
+    <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p><a className="button" href="#consultation">Записаться <ArrowIcon /></a></div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>
     <div className="interior-body">
       {page.type && <Cards items={items} type={page.type} />}
       {slug === "osnovatel" && <FounderContent />}

@@ -1,26 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowRight, Brain, ShieldCheck, UserRound, FileText, Clock3,
-  UsersRound, BatteryWarning, TrendingUp, Lightbulb, Sprout, Play,
-} from "lucide-react";
+  AnchorLeafIcon, ArrowIcon, BatteryHeartIcon, ClockFlowIcon,
+  ConnectionIcon, DocumentSparkIcon, GrowthIcon, GuideIcon,
+  IdeaIcon, NeuralIcon, PlayIcon, ShieldBloomIcon,
+} from "@/components/premium-icons";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { getContent } from "@/lib/content.server";
 
 export const dynamic = "force-dynamic";
 
 const pathItems = [
-  { icon: Brain, label: "Научный подход" },
-  { icon: UserRound, label: "Специалист под запрос" },
-  { icon: ShieldCheck, label: "Собственная методика" },
-  { icon: FileText, label: "Поддержка при сложных случаях" },
+  { icon: NeuralIcon, label: "Научный подход" },
+  { icon: GuideIcon, label: "Специалист под запрос" },
+  { icon: ShieldBloomIcon, label: "Собственная методика" },
+  { icon: DocumentSparkIcon, label: "Поддержка при сложных случаях" },
 ];
 
 const pains = [
-  { icon: Brain, label: "Тревога и напряжение" },
-  { icon: Clock3, label: "Бизнес не отпускает" },
-  { icon: UsersRound, label: "Отдаление в семье" },
-  { icon: BatteryWarning, label: "Нет сил на близких" },
+  { icon: NeuralIcon, label: "Тревога и напряжение" },
+  { icon: ClockFlowIcon, label: "Бизнес не отпускает" },
+  { icon: ConnectionIcon, label: "Отдаление в семье" },
+  { icon: BatteryHeartIcon, label: "Нет сил на близких" },
 ];
 
 const results = [
@@ -45,7 +46,7 @@ export default async function Home() {
           <h1>Найди <em>баланс</em><br />между бизнесом<br />и семьёй</h1>
           <p className="hero-lead">Укрепи себя, сохрани семью<br />и расти в доходе.</p>
           <div className="hero-actions">
-            <a className="button" href="#consultation">Начать изменения <ArrowRight size={17} /></a>
+            <a className="button" href="#consultation">Начать изменения <ArrowIcon /></a>
             <Link className="button button-light" href="/specialisty">Подобрать специалиста</Link>
           </div>
           <div className="hero-stats" aria-label="О центре">
@@ -57,7 +58,7 @@ export default async function Home() {
         <div className="hero-photo">
           <Image src="/images/hero-team-reference.png" alt="Команда психологического центра" fill priority sizes="(max-width: 800px) 100vw, 55vw" />
           <div className="hero-quote">Помогаем<br />идти по-настоящему —<br />с опорой для бизнеса и семьи</div>
-          <Link className="hero-play" href="/o-centre"><span><Play fill="currentColor" /></span><b>Посмотрите<br />о нашем подходе</b></Link>
+          <Link className="hero-play" href="/o-centre"><span><PlayIcon /></span><b>Посмотрите<br />о нашем подходе</b></Link>
         </div>
       </section>
 
@@ -95,12 +96,12 @@ export default async function Home() {
       <section className="programs-section section-shell">
         <div className="section-label">Выберите свой<br />запрос</div>
         <div className="section-content">
-          <div className="section-heading-row"><h2>Популярные направления работы</h2><Link href="/uslugi">Все программы <ArrowRight /></Link></div>
+          <div className="section-heading-row"><h2>Популярные направления работы</h2><Link href="/uslugi">Все программы <ArrowIcon /></Link></div>
           <div className="program-grid">
             {programs.slice(0, 3).map((program) => (
               <article className="program-card" key={program.id}>
                 <div className="program-image"><Image src={program.image} alt="" fill sizes="(max-width: 700px) 100vw, 33vw" /></div>
-                <div className="program-card-copy"><h3>{program.title}</h3><p>{program.body}</p><Link href="/uslugi">Узнать больше <ArrowRight /></Link></div>
+                <div className="program-card-copy"><h3>{program.title}</h3><p>{program.body}</p><Link href="/uslugi">Узнать больше <ArrowIcon /></Link></div>
               </article>
             ))}
           </div>
@@ -110,10 +111,10 @@ export default async function Home() {
       <section className="income-section section-shell-wide">
         <h2>Доход растёт из устойчивого состояния</h2>
         <div className="income-flow">
-          <div><Sprout /><span>Опора</span></div><ArrowRight />
-          <div><Lightbulb /><span>Решения</span></div><ArrowRight />
-          <div><UsersRound /><span>Команда</span></div><ArrowRight />
-          <div><TrendingUp /><span>Доход</span></div>
+          <div><AnchorLeafIcon /><span>Опора</span></div><ArrowIcon />
+          <div><IdeaIcon /><span>Решения</span></div><ArrowIcon />
+          <div><ConnectionIcon /><span>Команда</span></div><ArrowIcon />
+          <div><GrowthIcon /><span>Доход</span></div>
           <blockquote>«Устойчивость — не роскошь, а основа больших результатов»</blockquote>
         </div>
       </section>
@@ -126,7 +127,7 @@ export default async function Home() {
             {specialists.map((person) => (
               <article className="specialist-card" key={person.id}>
                 <div className="specialist-photo"><Image src={person.image} alt={person.title} fill sizes="(max-width: 700px) 100vw, 33vw" /></div>
-                <div><h3>{person.title}</h3><p>{person.subtitle}</p><Link href="/specialisty">Подробнее <ArrowRight /></Link></div>
+                <div><h3>{person.title}</h3><p>{person.subtitle}</p><Link href="/specialisty">Подробнее <ArrowIcon /></Link></div>
               </article>
             ))}
           </div>
@@ -146,7 +147,7 @@ export default async function Home() {
 
       <section className="consultation-section" id="consultation">
         <div><h2>Перестань выбирать между бизнесом и семьёй</h2><p>Укрепи себя, сохрани близость и создай условия для роста дохода.</p></div>
-        <Link className="button button-light" href="/kontakty">Подобрать специалиста <ArrowRight /></Link>
+        <Link className="button button-light" href="/kontakty">Подобрать специалиста <ArrowIcon /></Link>
       </section>
       <SiteFooter />
     </main>

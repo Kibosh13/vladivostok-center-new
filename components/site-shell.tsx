@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowIcon } from "@/components/premium-icons";
 import { navItems } from "@/lib/content";
 
 export function SiteHeader() {
@@ -12,7 +12,14 @@ export function SiteHeader() {
       <nav className="main-nav" aria-label="Основная навигация">
         {navItems.slice(0, 5).map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
       </nav>
-      <a className="button button-small" href="#consultation">Записаться <ArrowRight size={16} /></a>
+      <a className="button button-small" href="#consultation">Записаться <ArrowIcon /></a>
+      <details className="mobile-nav">
+        <summary aria-label="Открыть меню"><span /><span /></summary>
+        <nav aria-label="Мобильная навигация">
+          {navItems.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
+          <Link className="mobile-nav-cta" href="/contacts">Записаться <ArrowIcon /></Link>
+        </nav>
+      </details>
     </header>
   );
 }

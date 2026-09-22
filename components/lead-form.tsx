@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowIcon, SuccessIcon } from "@/components/premium-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -95,7 +95,7 @@ export function LeadForm({ compact = false, source = "site" }: { compact?: boole
   }
 
   if (state === "success") {
-    return <div className="form-success" role="status"><CheckCircle2 /><strong>Заявка получена</strong><span>Мы свяжемся с вами и подберём подходящий формат.</span></div>;
+    return <div className="form-success" role="status"><SuccessIcon /><strong>Заявка получена</strong><span>Мы свяжемся с вами и подберём подходящий формат.</span></div>;
   }
 
   return (
@@ -105,7 +105,7 @@ export function LeadForm({ compact = false, source = "site" }: { compact?: boole
       {!compact && <Input name="email" type="email" aria-label="Email" placeholder="Email (необязательно)" />}
       {!compact && <Textarea name="message" aria-label="О чём хотите поговорить" placeholder="Коротко опишите ваш запрос" rows={3} />}
       <Button className="form-button" type="submit" disabled={state === "loading"}>
-        {state === "loading" ? "Отправляем…" : "Подобрать специалиста"}<ArrowRight />
+        {state === "loading" ? "Отправляем…" : "Подобрать специалиста"}<ArrowIcon />
       </Button>
       {state === "error" && <p className="form-error" role="alert">{error}</p>}
       <p className="form-note">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности.</p>
