@@ -1,28 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  AnchorLeafIcon, ArrowIcon, BatteryHeartIcon, ClockFlowIcon,
-  ConnectionIcon, DocumentSparkIcon, GrowthIcon, GuideIcon,
-  IdeaIcon, NeuralIcon, PlayIcon, ShieldBloomIcon,
-} from "@/components/premium-icons";
+import { GeneratedIcon, type GeneratedIconName } from "@/components/generated-icon";
+import { ArrowIcon, PlayIcon } from "@/components/premium-icons";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { getContent } from "@/lib/content.server";
 
 export const dynamic = "force-dynamic";
 
 const pathItems = [
-  { icon: NeuralIcon, label: "Научный подход" },
-  { icon: GuideIcon, label: "Специалист под запрос" },
-  { icon: ShieldBloomIcon, label: "Собственная методика" },
-  { icon: DocumentSparkIcon, label: "Поддержка при сложных случаях" },
-];
+  { icon: "path-science", label: "Научный подход" },
+  { icon: "path-specialist", label: "Специалист под запрос" },
+  { icon: "path-method", label: "Собственная методика" },
+  { icon: "path-support", label: "Поддержка при сложных случаях" },
+] satisfies { icon: GeneratedIconName; label: string }[];
 
 const pains = [
-  { icon: NeuralIcon, label: "Тревога и напряжение" },
-  { icon: ClockFlowIcon, label: "Бизнес не отпускает" },
-  { icon: ConnectionIcon, label: "Отдаление в семье" },
-  { icon: BatteryHeartIcon, label: "Нет сил на близких" },
-];
+  { icon: "pain-tension", label: "Тревога и напряжение" },
+  { icon: "pain-clock", label: "Бизнес не отпускает" },
+  { icon: "pain-family", label: "Отдаление в семье" },
+  { icon: "pain-energy", label: "Нет сил на близких" },
+] satisfies { icon: GeneratedIconName; label: string }[];
 
 const results = [
   ["01", "Внутренняя опора", "Больше уверенности и спокойствия"],
@@ -68,7 +65,7 @@ export default async function Home() {
           <h2>Самый короткий путь к результату</h2>
           <p>Научный подход. Личный маршрут. Гарантия результата.</p>
           <div className="path-grid">
-            {pathItems.map(({ icon: Icon, label }) => <div className="path-item" key={label}><Icon /><span>{label}</span></div>)}
+            {pathItems.map(({ icon, label }) => <div className="path-item" key={label}><GeneratedIcon name={icon} /><span>{label}</span></div>)}
           </div>
         </div>
       </section>
@@ -76,7 +73,7 @@ export default async function Home() {
       <section className="pain-section section-shell">
         <h2>Всё хорошо снаружи. Но сил уже нет.</h2>
         <div className="pain-grid">
-          {pains.map(({ icon: Icon, label }) => <div key={label}><Icon /><span>{label}</span></div>)}
+          {pains.map(({ icon, label }) => <div key={label}><GeneratedIcon name={icon} /><span>{label}</span></div>)}
           <p className="hand-note">Ты можешь<br />по-другому ↙</p>
         </div>
       </section>
@@ -111,10 +108,10 @@ export default async function Home() {
       <section className="income-section section-shell-wide">
         <h2>Доход растёт из устойчивого состояния</h2>
         <div className="income-flow">
-          <div><AnchorLeafIcon /><span>Опора</span></div><ArrowIcon />
-          <div><IdeaIcon /><span>Решения</span></div><ArrowIcon />
-          <div><ConnectionIcon /><span>Команда</span></div><ArrowIcon />
-          <div><GrowthIcon /><span>Доход</span></div>
+          <div><GeneratedIcon name="income-support" /><span>Опора</span></div><ArrowIcon />
+          <div><GeneratedIcon name="income-decisions" /><span>Решения</span></div><ArrowIcon />
+          <div><GeneratedIcon name="income-team" /><span>Команда</span></div><ArrowIcon />
+          <div><GeneratedIcon name="income-growth" /><span>Доход</span></div>
           <blockquote>«Устойчивость — не роскошь, а основа больших результатов»</blockquote>
         </div>
       </section>

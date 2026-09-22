@@ -1046,3 +1046,151 @@ h1, h2, h3,
   }
   .interior-hero h1 { font-size: 50px; }
 }
+
+/* Generated jewelry-like raster icon family. */
+.generated-icon {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  isolation: isolate;
+  filter: drop-shadow(0 10px 15px rgba(76, 29, 37, .13));
+  transform-origin: 50% 65%;
+}
+.generated-icon::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.9), rgba(222,194,185,.22) 56%, transparent 72%);
+  filter: blur(5px);
+}
+.generated-icon::after {
+  content: "";
+  position: absolute;
+  inset: 6% 18%;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 34%, rgba(255,255,255,.76) 49%, transparent 64%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: translateX(-85%) rotate(8deg);
+}
+.generated-icon img {
+  position: static !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  object-fit: contain !important;
+  filter: none !important;
+}
+.path-item .generated-icon { width: 76px; height: 76px; }
+.pain-grid .generated-icon { width: 70px; height: 70px; }
+.income-flow .generated-icon { width: 92px; height: 92px; }
+.contact-details .generated-icon { width: 62px; height: 62px; margin-top: -14px; margin-bottom: -14px; }
+.event-facts .generated-icon { width: 88px; height: 88px; margin-bottom: 2px; }
+.form-success .generated-icon { width: 104px; height: 104px; }
+.generated-icon.generated-icon-inline { width: 38px; height: 38px; margin: -9px -3px -9px -8px; }
+
+/* Quiet editorial motion: reveal, stagger, image settle and restrained hover depth. */
+.motion-ready .motion-reveal,
+.motion-ready .motion-sequence > * {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+}
+.motion-ready .motion-reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition: opacity .8s cubic-bezier(.22,.7,.2,1), transform .9s cubic-bezier(.22,.7,.2,1);
+}
+.motion-ready .motion-sequence.is-visible > * {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition: opacity .7s cubic-bezier(.22,.7,.2,1), transform .8s cubic-bezier(.22,.7,.2,1);
+}
+.motion-ready .motion-sequence.is-visible > :nth-child(2) { transition-delay: 70ms; }
+.motion-ready .motion-sequence.is-visible > :nth-child(3) { transition-delay: 140ms; }
+.motion-ready .motion-sequence.is-visible > :nth-child(4) { transition-delay: 210ms; }
+.motion-ready .motion-sequence.is-visible > :nth-child(5) { transition-delay: 280ms; }
+.motion-ready .motion-sequence.is-visible > :nth-child(6) { transition-delay: 350ms; }
+.motion-ready .motion-sequence.is-visible > :nth-child(7) { transition-delay: 420ms; }
+.motion-ready .motion-sequence.is-visible > :nth-child(8) { transition-delay: 490ms; }
+
+@keyframes hero-copy-in {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes hero-image-in {
+  from { opacity: .45; transform: scale(1.045); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes icon-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -3px, 0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .motion-ready .hero-copy > * { animation: hero-copy-in .75s cubic-bezier(.22,.7,.2,1) both; }
+  .motion-ready .hero-copy > :nth-child(2) { animation-delay: 70ms; }
+  .motion-ready .hero-copy > :nth-child(3) { animation-delay: 130ms; }
+  .motion-ready .hero-copy > :nth-child(4) { animation-delay: 190ms; }
+  .motion-ready .hero-copy > :nth-child(5) { animation-delay: 250ms; }
+  .motion-ready .hero-photo > img { animation: hero-image-in 1.35s cubic-bezier(.2,.7,.15,1) both; }
+  .income-flow > div:nth-of-type(odd) .generated-icon { animation: icon-drift 5.8s ease-in-out infinite; }
+  .income-flow > div:nth-of-type(even) .generated-icon { animation: icon-drift 5.8s ease-in-out -2.9s infinite; }
+}
+
+@media (hover: hover) {
+  .path-item,
+  .pain-grid > div,
+  .income-flow > div,
+  .program-card,
+  .specialist-card,
+  .interior-card,
+  .result-card { transition: transform .35s cubic-bezier(.22,.7,.2,1), box-shadow .35s ease, border-color .35s ease; }
+  .path-item:hover .generated-icon,
+  .pain-grid > div:hover .generated-icon,
+  .income-flow > div:hover .generated-icon,
+  .contact-details p:hover .generated-icon { transform: translateY(-4px) rotate(-1.5deg) scale(1.055); }
+  .path-item:hover .generated-icon::after,
+  .pain-grid > div:hover .generated-icon::after,
+  .income-flow > div:hover .generated-icon::after,
+  .contact-details p:hover .generated-icon::after {
+    opacity: .82;
+    transform: translateX(85%) rotate(8deg);
+    transition: opacity .2s ease, transform .72s cubic-bezier(.2,.7,.2,1);
+  }
+  .program-card:hover,
+  .specialist-card:hover,
+  .interior-card:hover,
+  .result-card:hover { transform: translateY(-5px); border-color: rgba(126, 11, 36, .2); box-shadow: 0 20px 42px rgba(57,37,29,.1); }
+  .program-card:hover .program-image img,
+  .specialist-card:hover .specialist-photo img,
+  .interior-card:hover .interior-card-image img { transform: scale(1.035); }
+  .program-image img,
+  .specialist-photo img,
+  .interior-card-image img { transition: transform .7s cubic-bezier(.22,.7,.2,1); }
+  .button:hover .premium-arrow,
+  a:hover > .premium-arrow { transform: translateX(3px); }
+  .premium-arrow { transition: transform .25s ease; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .motion-ready .motion-reveal,
+  .motion-ready .motion-sequence > * { opacity: 1 !important; transform: none !important; }
+}
+
+@media (max-width: 640px) {
+  .path-content { min-width: 0; }
+  .path-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .path-item,
+  .path-item + .path-item { min-width: 0; gap: 10px; }
+  .path-item span { min-width: 0; }
+  .path-item .generated-icon,
+  .pain-grid .generated-icon { width: 62px; height: 62px; }
+  .path-item .generated-icon { width: 56px; height: 56px; }
+  .income-flow .generated-icon { width: 78px; height: 78px; }
+}

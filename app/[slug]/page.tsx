@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowIcon, CalendarIcon, CheckIcon, MapIcon, PhoneIcon, SendIcon } from "@/components/premium-icons";
+import { GeneratedIcon } from "@/components/generated-icon";
+import { ArrowIcon } from "@/components/premium-icons";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { LeadForm } from "@/components/lead-form";
 import { getContent } from "@/lib/content.server";
@@ -94,14 +95,14 @@ function CourseContent() {
 function YachtContent() {
   const inclusions = ["Аренда яхты", "Комфортное размещение", "Питание и свежие морепродукты", "Мастер-класс", "Мини-расстановки", "Практические материалы", "Индивидуальные рекомендации"];
   return <>
-    <section className="event-facts"><div><CalendarIcon /><strong>15 сентября</strong><span>10:00–17:00</span></div><div><strong>до 10</strong><span>участников</span></div><div><strong>25 000 ₽</strong><span>всё включено</span></div></section>
+    <section className="event-facts"><div><GeneratedIcon name="utility-calendar" /><strong>15 сентября</strong><span>10:00–17:00</span></div><div><strong>до 10</strong><span>участников</span></div><div><strong>25 000 ₽</strong><span>всё включено</span></div></section>
     <section className="editorial-split"><div><span className="section-label">О тренинге</span><h2>Остановиться и увидеть свою жизнь с другой точки</h2></div><div className="rich-copy"><p>Все сферы жизни связаны. Внутренний конфликт забирает энергию у отношений, финансов, решений и способности двигаться вперёд.</p><p>На воде легче выйти за привычные границы и заметить то, что теряется в ежедневной спешке. В программе — мастер-класс с Алёной Савиновой, мини-расстановки и индивидуальные рекомендации.</p></div></section>
-    <section className="included-block"><span className="section-label">На борту</span><h2>Всё включено</h2><div>{inclusions.map((item) => <p key={item}><CheckIcon />{item}</p>)}</div></section>
+    <section className="included-block"><span className="section-label">На борту</span><h2>Всё включено</h2><div>{inclusions.map((item) => <p key={item}><GeneratedIcon name="utility-success" className="generated-icon-inline" />{item}</p>)}</div></section>
   </>;
 }
 
 function ContactContent() {
-  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><PhoneIcon /> <a href="tel:+79964249049">+7 996 424-90-49</a></p><p><MapIcon /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><SendIcon /> <a href="https://t.me/+79964249049">Telegram</a> · <a href="https://vk.ru">ВКонтакте</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Записаться на встречу</h2><LeadForm source="contacts" /></div></section>;
+  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><GeneratedIcon name="utility-phone" /> <a href="tel:+79964249049">+7 996 424-90-49</a></p><p><GeneratedIcon name="utility-location" /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><GeneratedIcon name="utility-send" /> <a href="https://t.me/+79964249049">Telegram</a> · <a href="https://vk.ru">ВКонтакте</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Записаться на встречу</h2><LeadForm source="contacts" /></div></section>;
 }
 
 function LegalContent({ offer }: { offer: boolean }) {

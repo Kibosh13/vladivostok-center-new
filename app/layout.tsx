@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SiteMotion } from "@/components/site-motion";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
-      <body>{children}</body>
+      <body><SiteMotion />{children}</body>
     </html>
   );
 }
