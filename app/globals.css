@@ -503,13 +503,19 @@ h2, h3, p { text-wrap: pretty; }
 }
 .home-reference .hero h1 {
   margin: 22px 0 7px;
-  font-size: clamp(62px, 5.25vw, 70px);
+  font-size: clamp(52px, 5.25vw, 70px);
   line-height: .94;
   letter-spacing: -.06em;
 }
 .home-reference .hero-lead { font-size: 22px; line-height: 1.2; }
 .home-reference .hero-actions { gap: 16px; margin-top: 29px; }
-.home-reference .hero-actions .button { min-height: 51px; padding: 0 24px; }
+.home-reference .hero-actions .button {
+  min-height: 51px;
+  padding: 0 18px;
+  gap: 10px;
+  font-size: 10px;
+  white-space: nowrap;
+}
 .home-reference .hero-stats {
   margin-top: auto;
   padding-top: 34px;
