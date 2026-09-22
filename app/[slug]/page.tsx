@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CalendarDays, Check, MapPin, Phone, Send } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";

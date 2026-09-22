@@ -57,7 +57,7 @@ export default async function Home() {
         <div className="hero-photo">
           <Image src="/images/hero-team-reference.png" alt="Команда психологического центра" fill priority sizes="(max-width: 800px) 100vw, 55vw" />
           <div className="hero-quote">Помогаем<br />идти по-настоящему —<br />с опорой для бизнеса и семьи</div>
-          <a className="hero-play" href="/o-centre"><span><Play fill="currentColor" /></span><b>Посмотрите<br />о нашем подходе</b></a>
+          <Link className="hero-play" href="/o-centre"><span><Play fill="currentColor" /></span><b>Посмотрите<br />о нашем подходе</b></Link>
         </div>
       </section>
 
