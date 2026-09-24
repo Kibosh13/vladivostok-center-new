@@ -43,7 +43,7 @@ export default async function Home() {
           <h1>Найди <em>баланс</em><br />между бизнесом<br />и семьёй</h1>
           <p className="hero-lead">Укрепи себя, сохрани семью<br />и расти в доходе.</p>
           <div className="hero-actions">
-            <a className="button" href="#consultation">Начать изменения <ArrowIcon /></a>
+            <a className="button" href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>
             <Link className="button button-light" href="/specialisty">Бесплатный подбор психолога</Link>
           </div>
           <div className="hero-stats" aria-label="О центре">
