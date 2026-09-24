@@ -44,7 +44,7 @@ export default async function Home() {
           <p className="hero-lead">Укрепи себя, сохрани семью<br />и расти в доходе.</p>
           <div className="hero-actions">
             <a className="button" href="#consultation">Начать изменения <ArrowIcon /></a>
-            <Link className="button button-light" href="/specialisty">Подобрать специалиста</Link>
+            <Link className="button button-light" href="/specialisty">Бесплатный подбор психолога</Link>
           </div>
           <div className="hero-stats" aria-label="О центре">
             <div><strong>20+</strong><span>лет практики</span></div>
@@ -144,7 +144,7 @@ export default async function Home() {
 
       <section className="consultation-section" id="consultation">
         <div><h2>Перестань выбирать между бизнесом и семьёй</h2><p>Укрепи себя, сохрани близость и создай условия для роста дохода.</p></div>
-        <Link className="button button-light" href="/kontakty">Подобрать специалиста <ArrowIcon /></Link>
+        <Link className="button button-light" href="/kontakty">Бесплатный подбор психолога <ArrowIcon /></Link>
       </section>
       <SiteFooter />
     </main>

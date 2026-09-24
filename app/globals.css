@@ -444,7 +444,7 @@ h2, h3, p { text-wrap: pretty; }
   height: 96px;
   max-width: var(--home-width);
   padding: 0 38px;
-  grid-template-columns: minmax(270px, 1fr) auto minmax(176px, 1fr);
+  grid-template-columns: minmax(220px, 1fr) auto minmax(242px, 1fr);
   gap: 24px;
   background: rgba(250,247,244,.98);
 }
@@ -799,13 +799,28 @@ h1, h2, h3,
   height: 96px;
   max-width: none;
   padding: 0 clamp(28px, 3.2vw, 68px);
-  grid-template-columns: minmax(270px, 1fr) auto minmax(176px, 1fr);
+  grid-template-columns: minmax(220px, 1fr) auto minmax(242px, 1fr);
   gap: 24px;
   background: rgba(250,247,244,.97);
   border-bottom: 1px solid rgba(122, 86, 73, .08);
 }
 .brand,
-.home-reference .brand { gap: 24px; }
+.home-reference .brand {
+  min-width: 0;
+  gap: 0;
+}
+.brand-logo {
+  display: block;
+  width: 168px;
+  height: auto;
+  max-height: 92px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+.brand-logo-footer {
+  width: 220px;
+  max-height: none;
+}
 .brand-mark,
 .home-reference .brand-mark {
   font-family: var(--font-display);
@@ -841,7 +856,12 @@ h1, h2, h3,
   font-size: 11px;
 }
 .site-header > .button,
-.home-reference .site-header > .button { min-width: 174px; }
+.home-reference .site-header > .button {
+  min-width: 238px;
+  padding-left: 18px;
+  padding-right: 18px;
+  white-space: nowrap;
+}
 
 .mobile-nav { display: none; justify-self: end; position: relative; z-index: 30; }
 .mobile-nav > summary {
@@ -1021,6 +1041,9 @@ h1, h2, h3,
 @media (max-width: 640px) {
   .site-header,
   .home-reference .site-header { height: 72px; padding: 0 20px; }
+  .site-header .brand-logo,
+  .home-reference .site-header .brand-logo { width: 126px; max-height: 68px; }
+  .brand-logo-footer { width: 205px; max-height: none; }
   .brand-mark,
   .home-reference .brand-mark { font-size: 19px; }
   .path-strip,

@@ -48,7 +48,7 @@ function Cards({ items, type }: { items: ContentItem[]; type: ContentType }) {
             <h2>{item.title}</h2>
             <p className="card-subtitle">{item.subtitle}</p>
             <p>{item.body}</p>
-            {type !== "review" && <a href="#consultation">Записаться <ArrowIcon /></a>}
+            {type !== "review" && <a href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>}
           </div>
         </article>
       ))}
@@ -102,7 +102,7 @@ function YachtContent() {
 }
 
 function ContactContent() {
-  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><GeneratedIcon name="utility-phone" /> <a href="tel:+79964249049">+7 996 424-90-49</a></p><p><GeneratedIcon name="utility-location" /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><GeneratedIcon name="utility-send" /> <a href="https://t.me/+79964249049">Telegram</a> · <a href="https://vk.ru">ВКонтакте</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Записаться на встречу</h2><LeadForm source="contacts" /></div></section>;
+  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><GeneratedIcon name="utility-phone" /> <a href="tel:+79964249049">+7 996 424-90-49</a></p><p><GeneratedIcon name="utility-location" /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><GeneratedIcon name="utility-send" /> <a href="https://t.me/+79964249049">Telegram</a> · <a href="https://vk.ru">ВКонтакте</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Бесплатный подбор психолога</h2><LeadForm source="contacts" /></div></section>;
 }
 
 function LegalContent({ offer }: { offer: boolean }) {
@@ -116,7 +116,7 @@ export default async function InteriorPage({ params }: { params: Promise<{ slug:
   const items = page.type ? await getContent(page.type) : [];
   return <main>
     <SiteHeader />
-    <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p><a className="button" href="#consultation">Записаться <ArrowIcon /></a></div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>
+    <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p><a className="button" href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a></div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>
     <div className="interior-body">
       {page.type && <Cards items={items} type={page.type} />}
       {slug === "osnovatel" && <FounderContent />}

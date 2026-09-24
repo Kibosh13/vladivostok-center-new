@@ -47,7 +47,7 @@ export function LeadForm({ compact = false, source = "site" }: { compact?: boole
     try {
       void Promise.resolve(context.registerTool({
         name: "submit_consultation_request",
-        title: "Записаться на консультацию",
+        title: "Бесплатный подбор психолога",
         description: "Отправляет в центр «Путь к себе» заявку на консультацию с именем и телефоном клиента.",
         inputSchema: {
           type: "object",
@@ -106,7 +106,7 @@ export function LeadForm({ compact = false, source = "site" }: { compact?: boole
       {!compact && <Input name="email" type="email" aria-label="Email" placeholder="Email (необязательно)" />}
       {!compact && <Textarea name="message" aria-label="О чём хотите поговорить" placeholder="Коротко опишите ваш запрос" rows={3} />}
       <Button className="form-button" type="submit" disabled={state === "loading"}>
-        {state === "loading" ? "Отправляем…" : "Подобрать специалиста"}<ArrowIcon />
+        {state === "loading" ? "Отправляем…" : "Бесплатный подбор психолога"}<ArrowIcon />
       </Button>
       {state === "error" && <p className="form-error" role="alert">{error}</p>}
       <p className="form-note">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности.</p>

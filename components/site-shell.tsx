@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowIcon } from "@/components/premium-icons";
 import { navItems } from "@/lib/content";
@@ -6,18 +7,17 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <Link className="brand" href="/" aria-label="Путь к себе — главная">
-        <span className="brand-mark">ПУТЬ.<br />К СЕБЕ</span>
-        <span className="brand-note">Психологический центр<br />для предпринимателей<br />и их семей</span>
+        <Image className="brand-logo" src="/images/brand/logo-put-k-sebe.png" alt="Международный тренинговый центр «Путь к себе»" width={1280} height={688} priority />
       </Link>
       <nav className="main-nav" aria-label="Основная навигация">
         {navItems.slice(0, 5).map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
       </nav>
-      <a className="button button-small" href="#consultation">Записаться <ArrowIcon /></a>
+      <a className="button button-small" href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>
       <details className="mobile-nav">
         <summary aria-label="Открыть меню"><span /><span /></summary>
         <nav aria-label="Мобильная навигация">
           {navItems.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
-          <Link className="mobile-nav-cta" href="/contacts">Записаться <ArrowIcon /></Link>
+          <Link className="mobile-nav-cta" href="/contacts">Бесплатный подбор психолога <ArrowIcon /></Link>
         </nav>
       </details>
     </header>
@@ -29,8 +29,7 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-main">
         <Link className="brand" href="/">
-          <span className="brand-mark">ПУТЬ.<br />К СЕБЕ</span>
-          <span className="brand-note">Психологический центр<br />для предпринимателей и их семей</span>
+          <Image className="brand-logo brand-logo-footer" src="/images/brand/logo-put-k-sebe.png" alt="Международный тренинговый центр «Путь к себе»" width={1280} height={688} />
         </Link>
         <nav className="footer-nav" aria-label="Навигация в подвале">
           {navItems.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
