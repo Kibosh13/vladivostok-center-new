@@ -26,6 +26,7 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   return (
+    <>
     <footer className="site-footer">
       <div className="footer-main">
         <Link className="brand" href="/">
@@ -35,8 +36,10 @@ export function SiteFooter() {
           {navItems.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
         </nav>
         <div className="footer-contact">
-          <a href="tel:+79964249049">+7 996 424-90-49</a>
-          <a href="https://wa.me/79964249049" target="_blank" rel="noreferrer">Написать в WhatsApp →</a>
+          <a href="tel:+79146658653">+7 914 665-86-53</a>
+          <a href="https://wa.me/79146658653" target="_blank" rel="noreferrer">Написать в WhatsApp →</a>
+          <a href="https://t.me/centre_pathtoyourself" target="_blank" rel="noreferrer">Telegram</a>
+          <a href="https://vk.ru/putkseberu" target="_blank" rel="noreferrer">ВКонтакте</a>
         </div>
       </div>
       <div className="footer-bottom">
@@ -46,5 +49,11 @@ export function SiteFooter() {
         <Link href="/admin">Админ‑панель</Link>
       </div>
     </footer>
+    <nav className="floating-messengers" aria-label="Связаться в мессенджере">
+      <a className="messenger-whatsapp" href="https://wa.me/79146658653" target="_blank" rel="noreferrer" aria-label="Написать в WhatsApp"><Image src="/images/social/whatsapp.svg" alt="" width={28} height={28} /></a>
+      <a className="messenger-telegram" href="https://t.me/centre_pathtoyourself" target="_blank" rel="noreferrer" aria-label="Открыть Telegram"><Image src="/images/social/telegram.svg" alt="" width={28} height={28} /></a>
+      <a className="messenger-max" href="https://max.ru/" target="_blank" rel="noreferrer" aria-label="Открыть MAX"><Image src="/images/social/max.png" alt="" width={34} height={34} /></a>
+    </nav>
+    </>
   );
 }

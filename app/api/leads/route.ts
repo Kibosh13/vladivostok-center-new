@@ -14,6 +14,6 @@ export async function POST(request: Request) {
     }).returning();
     return Response.json({ lead: { id: lead.id, status: lead.status } }, { status: 201 });
   } catch {
-    return Response.json({ error: "Заявку не удалось сохранить. Позвоните нам по номеру +7 996 424-90-49." }, { status: 503 });
+    return Response.json({ error: "Заявку не удалось сохранить. Позвоните нам по номеру +7 914 665-86-53." }, { status: 503 });
   }
 }

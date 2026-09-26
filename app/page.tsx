@@ -11,7 +11,7 @@ const pathItems = [
   { icon: "path-science", label: "Научный подход" },
   { icon: "path-specialist", label: "Специалист под запрос" },
   { icon: "path-method", label: "Собственная методика" },
-  { icon: "path-support", label: "Поддержка при сложных случаях" },
+  { icon: "path-support", label: "Лицензия для клинических случаев" },
 ] satisfies { icon: GeneratedIconName; label: string }[];
 
 const pains = [
@@ -28,6 +28,12 @@ const results = [
   ["04", "Сильная команда", "Поддержка и понимание"],
   ["05", "Рост дохода", "Больше ресурсов для жизни"],
 ];
+
+const featuredProgramTitles = [
+  "Состояние собственника",
+  "Отношения и деньги",
+  "Семья команда бизнес",
+] as const;
 
 export default async function Home() {
   const [programs, specialists, reviews] = await Promise.all([
@@ -67,6 +73,7 @@ export default async function Home() {
           <div className="path-grid">
             {pathItems.map(({ icon, label }) => <div className="path-item" key={label}><GeneratedIcon name={icon} /><span>{label}</span></div>)}
           </div>
+          <p className="path-insight">Состояние собственника влияет на семью, команду и деньги.</p>
         </div>
       </section>
 
@@ -95,10 +102,10 @@ export default async function Home() {
         <div className="section-content">
           <div className="section-heading-row"><h2>Популярные направления работы</h2><Link href="/uslugi">Все программы <ArrowIcon /></Link></div>
           <div className="program-grid">
-            {programs.slice(0, 3).map((program) => (
+            {programs.slice(0, 3).map((program, index) => (
               <article className="program-card" key={program.id}>
                 <div className="program-image"><Image src={program.image} alt="" fill sizes="(max-width: 700px) 100vw, 33vw" /></div>
-                <div className="program-card-copy"><h3>{program.title}</h3><p>{program.body}</p><Link href="/uslugi">Узнать больше <ArrowIcon /></Link></div>
+                <div className="program-card-copy"><h3>{featuredProgramTitles[index] ?? program.title}</h3><p>{program.body}</p><Link href="/uslugi">Узнать больше <ArrowIcon /></Link></div>
               </article>
             ))}
           </div>
@@ -121,7 +128,7 @@ export default async function Home() {
         <div className="section-content">
           <h2>Специалисты центра</h2>
           <div className="specialist-grid">
-            {specialists.map((person) => (
+            {specialists.filter((person) => person.id !== "specialist-alena").map((person) => (
               <article className="specialist-card" key={person.id}>
                 <div className="specialist-photo"><Image src={person.image} alt={person.title} fill sizes="(max-width: 700px) 100vw, 33vw" /></div>
                 <div><h3>{person.title}</h3><p>{person.subtitle}</p><Link href="/specialisty">Подробнее <ArrowIcon /></Link></div>
