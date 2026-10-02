@@ -42,19 +42,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 function Cards({ items, type }: { items: ContentItem[]; type: ContentType }) {
   return (
-    <section className={`interior-grid ${type === "review" ? "review-cards" : ""} ${type === "event" ? "event-cards" : ""}`}>
-      {items.map((item) => (
-        <article className="interior-card" key={item.id}>
+    <section className={`interior-grid ${type === "review" ? "review-cards" : ""} ${type === "event" ? "event-cards" : ""} ${type === "program" ? "program-cards" : ""}`}>
+      {items.map((item) => {
+        const card = <article className="interior-card">
           {item.image && <div className="interior-card-image"><Image src={item.image} alt={item.title} fill sizes="(max-width: 700px) 100vw, 33vw" /></div>}
           <div className="interior-card-copy">
             {type === "review" && <span className="quote-mark">“</span>}
             <h2>{item.title}</h2>
             <p className="card-subtitle">{item.subtitle}</p>
             <p>{item.body}</p>
-            {type !== "review" && <a href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>}
+            {type === "specialist" && <span className="interior-card-link">Подробнее о специалисте <ArrowIcon /></span>}
+            {type !== "review" && type !== "specialist" && <a href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>}
           </div>
-        </article>
-      ))}
+        </article>;
+        return type === "specialist" ? <Link className="interior-card-wrapper" href={`/specialisty/${item.slug}`} key={item.id}>{card}</Link> : <div className="interior-card-wrapper" key={item.id}>{card}</div>;
+      })}
     </section>
   );
 }
@@ -153,7 +155,7 @@ export default async function InteriorPage({ params }: { params: Promise<{ slug:
       {slug === "arhiv-meropriyatiy" && <EventArchive items={archivedEvents} />}
       {slug === "otzyvy" && <ReviewsExternal />}
       {slug === "socialnye-seti" && <SocialNetworks />}
-      {slug === "osnovatel" && <FounderContent />}
+      {slug === "osnovatel" && <><FounderContent /><EducationContent /></>}
       {slug === "obrazovanie" && <EducationContent />}
       {slug === "putksebe" && <CourseContent />}
       {slug === "rassvet-biznesa" && <YachtContent />}

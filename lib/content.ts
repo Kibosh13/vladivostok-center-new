@@ -42,8 +42,8 @@ export const defaultContent: ContentItem[] = [
     image: "/images/specialists/olga-melnikova.jpg", meta: JSON.stringify({ focus: "Клинические случаи", format: "Онлайн" }), sortOrder: 50, published: true,
   },
   {
-    id: "program-strategy", type: "program", slug: "strategicheskaya-sessiya", title: "Стратегическая сессия", subtitle: "Онлайн или офлайн · 1,5 часа · 50 000 ₽",
-    body: "Для собственников и руководителей, которым нужен ясный план перехода из точки А в точку Б. Пакет: 5 сессий и расстановка — 500 000 ₽.",
+    id: "program-strategy", type: "program", slug: "strategicheskaya-sessiya", title: "Стратегическая сессия", subtitle: "Онлайн или офлайн · 1,5 часа",
+    body: "Для собственников и руководителей, которым нужен ясный план перехода из точки А в точку Б. Формат и продолжительность программы подбираются под задачу.",
     image: "/images/event-2.jpg", meta: JSON.stringify({ category: "Состояние собственника" }), sortOrder: 10, published: true,
   },
   {
@@ -52,9 +52,14 @@ export const defaultContent: ContentItem[] = [
     image: "/images/team-1.jpeg", meta: JSON.stringify({ category: "Решения и рост" }), sortOrder: 20, published: true,
   },
   {
-    id: "program-arrangement", type: "program", slug: "biznes-rasstanovki", title: "Бизнес-расстановки", subtitle: "Участие · 3 500 ₽",
+    id: "program-arrangement", type: "program", slug: "biznes-rasstanovki", title: "Бизнес-расстановки", subtitle: "Групповой формат",
     body: "Системная работа с бизнесом и ресурсами для предпринимателей в стагнации, которые ищут новую модель дохода и решений.",
     image: "/images/team-2.jpg", meta: JSON.stringify({ category: "Семья, команда, бизнес" }), sortOrder: 30, published: true,
+  },
+  {
+    id: "program-games", type: "program", slug: "transformacionnye-igry", title: "Трансформационные игры", subtitle: "Афиша формируется",
+    body: "Игровые встречи для предпринимателей и руководителей: «Мафия», «Денежный поток» и «Игра на миллиард». Без скучных лекций — участники замечают собственные стратегии, учатся договариваться, принимать решения и по-новому смотреть на деньги и командное взаимодействие.",
+    image: "/images/team-1.jpeg", meta: JSON.stringify({ category: "Игровые практики" }), sortOrder: 40, published: true,
   },
   {
     id: "event-review", type: "event", slug: "gde-dengi", title: "Где деньги?", subtitle: "15 октября · 18:00–21:00 · 3 500 ₽",
@@ -92,7 +97,6 @@ export const navItems = [
   { href: "/meropriyatiya", label: "Мероприятия" },
   { href: "/otzyvy", label: "Отзывы" },
   { href: "/contacts", label: "Контакты" },
-  { href: "/obrazovanie", label: "Образование" },
   { href: "/socialnye-seti", label: "Социальные сети" },
 ];
 

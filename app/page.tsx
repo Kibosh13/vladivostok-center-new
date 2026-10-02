@@ -50,7 +50,7 @@ export default async function Home() {
           <p className="hero-lead">Укрепи себя, сохрани семью<br />и расти в доходе.</p>
           <div className="hero-actions">
             <a className="button" href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>
-            <Link className="button button-light" href="/specialisty">Бесплатный подбор психолога</Link>
+            <Link className="button button-light" href="/specialisty">Специалисты центра</Link>
           </div>
           <div className="hero-stats" aria-label="О центре">
             <div><strong>20+</strong><span>лет практики</span></div>
@@ -129,12 +129,20 @@ export default async function Home() {
           <h2>Специалисты центра</h2>
           <div className="specialist-grid">
             {specialists.filter((person) => person.id !== "specialist-alena").map((person) => (
-              <article className="specialist-card" key={person.id}>
+              <Link className="specialist-card specialist-card-link" href={`/specialisty/${person.slug}`} key={person.id}>
                 <div className="specialist-photo"><Image src={person.image} alt={person.title} fill sizes="(max-width: 700px) 100vw, 33vw" /></div>
-                <div><h3>{person.title}</h3><p>{person.subtitle}</p><Link href="/specialisty">Подробнее <ArrowIcon /></Link></div>
-              </article>
+                <div><h3>{person.title}</h3><p>{person.subtitle}</p><span className="specialist-card-more">Подробнее <ArrowIcon /></span></div>
+              </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="founder-spotlight section-shell">
+        <div className="section-label">Основатель<br />центра</div>
+        <div className="founder-spotlight-card">
+          <div className="founder-spotlight-photo"><Image src="/images/founder-speaking.jpeg" alt="Алёна Савинова" fill sizes="(max-width: 700px) 100vw, 38vw" /></div>
+          <div className="founder-spotlight-copy"><span className="eyebrow">Алёна Савинова</span><h2>Метод, опыт и научная основа центра</h2><p>Бизнес-наставник с опытом 25 лет, системный семейный психолог и автор метода формирования ресурсных систем личности.</p><div className="founder-spotlight-facts"><span>Образование</span><span>Научный подход</span><span>Рецензии</span><span>Книга «Жить ресурсно»</span></div><Link className="button" href="/osnovatel">Познакомиться подробнее <ArrowIcon /></Link></div>
         </div>
       </section>
 

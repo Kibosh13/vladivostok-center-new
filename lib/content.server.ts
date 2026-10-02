@@ -3,7 +3,7 @@ import { getDb } from "@/db";
 import { contentItems } from "@/db/schema";
 import { ContentItem, ContentType, defaultsByType } from "@/lib/content";
 
-const contentRevision = new Date("2026-09-26T10:25:00.000Z").getTime();
+const contentRevision = new Date("2026-10-02T20:30:00.000Z").getTime();
 const revisedDefaults = new Set([
   "specialist-elizaveta",
   "specialist-mark",
@@ -13,6 +13,10 @@ const revisedDefaults = new Set([
   "event-review",
   "event-model",
   "event-yacht",
+  "program-strategy",
+  "program-business-review",
+  "program-arrangement",
+  "program-games",
 ]);
 
 function isNewerAdminEdit(item: ContentItem) {

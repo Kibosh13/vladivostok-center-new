@@ -4,13 +4,12 @@ import { ArrowIcon } from "@/components/premium-icons";
 import { navItems } from "@/lib/content";
 
 export function SiteHeader() {
+  const headerNavItems = navItems.filter((item) => item.href !== "/contacts");
   return (
     <header className="site-header">
-      <Link className="brand" href="/" aria-label="Путь к себе — главная">
-        <Image className="brand-logo" src="/images/brand/logo-put-k-sebe.png" alt="Международный тренинговый центр «Путь к себе»" width={1280} height={688} priority />
-      </Link>
+      <div className="header-brand-group"><Link className="brand" href="/" aria-label="Путь к себе — главная"><Image className="brand-logo" src="/images/brand/logo-put-k-sebe.png" alt="Международный тренинговый центр «Путь к себе»" width={1280} height={688} priority /></Link><span className="header-city">Владивосток</span></div>
       <nav className="main-nav" aria-label="Основная навигация">
-        {navItems.slice(0, 5).map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
+        {headerNavItems.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
       </nav>
       <a className="button button-small" href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>
       <details className="mobile-nav">
@@ -51,7 +50,7 @@ export function SiteFooter() {
     </footer>
     <nav className="floating-messengers" aria-label="Связаться в мессенджере">
       <a className="messenger-whatsapp" href="https://wa.me/79146658653" target="_blank" rel="noreferrer" aria-label="Написать в WhatsApp"><Image src="/images/social/whatsapp.svg" alt="" width={28} height={28} /></a>
-      <a className="messenger-telegram" href="https://t.me/centre_pathtoyourself" target="_blank" rel="noreferrer" aria-label="Открыть Telegram"><Image src="/images/social/telegram.svg" alt="" width={28} height={28} /></a>
+      <a className="messenger-telegram" href="tg://resolve?phone=79146658653" aria-label="Написать в Telegram"><Image src="/images/social/telegram.svg" alt="" width={28} height={28} /></a>
       <a className="messenger-max" href="https://max.ru/" target="_blank" rel="noreferrer" aria-label="Открыть MAX"><Image src="/images/social/max.png" alt="" width={34} height={34} /></a>
     </nav>
     </>
