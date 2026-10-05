@@ -1,12 +1,17 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 import ts from "typescript";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outArg = process.argv.indexOf("--out");
 const output = resolve(root, outArg >= 0 ? process.argv[outArg + 1] : ".pages-demo");
 const base = (process.env.GITHUB_PAGES_BASE || "/vladivostok-center-new/").replace(/\/?$/, "/");
+const assetVersion = createHash("sha256")
+  .update(await readFile(join(root, "app/globals.css")))
+  .update(await readFile(fileURLToPath(import.meta.url)))
+  .digest("hex").slice(0, 12);
 
 const nav = [
   ["osnovatel", "О центре"], ["specialisty", "Специалисты"], ["uslugi", "Программы"],
@@ -62,7 +67,7 @@ function layout(title, body, description = "Психологический це�
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex"><meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
   <meta name="description" content="${esc(description)}"><title>${esc(title)} — Путь к себе</title>
-  <link rel="icon" href="${base}favicon.svg"><link rel="stylesheet" href="${base}site.css"><script defer src="${base}demo.js"></script></head><body>${body}</body></html>`;
+  <link rel="icon" href="${base}favicon.svg"><link rel="stylesheet" href="${base}site.css?v=${assetVersion}"><script defer src="${base}demo.js?v=${assetVersion}"></script></head><body>${body}</body></html>`;
 }
 
 const icon = (name, className = "") => `<span class="generated-icon ${className}" aria-hidden="true"><img src="${base}images/icons/generated/${name}.png" alt="" width="512" height="512"></span>`;
