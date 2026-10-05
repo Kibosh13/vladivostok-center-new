@@ -1066,6 +1066,7 @@ h1, h2, h3,
   .home-reference .section-shell-wide,
   .consultation-section,
   .home-reference .consultation-section,
+  .interior-hero > div:first-child,
   .interior-grid,
   .editorial-split,
   .education-list,
@@ -1080,6 +1081,7 @@ h1, h2, h3,
     padding-right: 20px;
   }
   .interior-hero h1 { font-size: 50px; }
+  .interior-hero .button { max-width: 100%; padding: 12px 18px; font-size: 11px; text-align: center; }
 }
 
 /* Generated jewelry-like raster icon family. */
