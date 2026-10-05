@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { GeneratedIcon } from "@/components/generated-icon";
 import { ArrowIcon } from "@/components/premium-icons";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,7 @@ async function submitLead(payload: LeadPayload) {
   return result.lead;
 }
 
-export function LeadForm({ compact = false, source = "site" }: { compact?: boolean; source?: string }) {
+export function LeadForm({ compact = false, source = "site", specialistName }: { compact?: boolean; source?: string; specialistName?: string }) {
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState("");
 
@@ -78,7 +79,8 @@ export function LeadForm({ compact = false, source = "site" }: { compact?: boole
     event.preventDefault();
     setState("loading");
     setError("");
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
     try {
       await submitLead({
         name: String(data.get("name") || "").trim(),
@@ -87,7 +89,7 @@ export function LeadForm({ compact = false, source = "site" }: { compact?: boole
         message: String(data.get("message") || "").trim(),
         source,
       });
-      event.currentTarget.reset();
+      form.reset();
       setState("success");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Не удалось отправить заявку");
@@ -101,15 +103,17 @@ export function LeadForm({ compact = false, source = "site" }: { compact?: boole
 
   return (
     <form className={compact ? "lead-form compact" : "lead-form"} onSubmit={onSubmit}>
+      {specialistName && <div className="booking-form-heading"><span className="section-label">Запись к специалисту</span><h3>{specialistName}</h3><p>Отправка заявки происходит после бесплатной диагностической сессии.</p></div>}
       <Input name="name" aria-label="Имя" placeholder="Ваше имя" required minLength={2} />
       <Input name="phone" aria-label="Телефон" placeholder="Телефон" required minLength={6} />
       {!compact && <Input name="email" type="email" aria-label="Email" placeholder="Email (необязательно)" />}
       {!compact && <Textarea name="message" aria-label="О чём хотите поговорить" placeholder="Коротко опишите ваш запрос" rows={3} />}
+      {!compact && <label className="form-consent"><input name="consent" type="checkbox" required /><span>Согласен(на) с <Link href="/privacy">политикой конфиденциальности</Link></span></label>}
       <Button className="form-button" type="submit" disabled={state === "loading"}>
         {state === "loading" ? "Отправляем…" : "Бесплатный подбор психолога"}<ArrowIcon />
       </Button>
       {state === "error" && <p className="form-error" role="alert">{error}</p>}
-      <p className="form-note">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности.</p>
+      <p className="form-note">{compact ? "Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности." : "Администратор согласует с вами формат и время встречи."}</p>
     </form>
   );
 }

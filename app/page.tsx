@@ -45,7 +45,7 @@ export default async function Home() {
       <SiteHeader />
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">Центр для предпринимателей<br />и их семей</p>
+          <p className="eyebrow">Центр психологической поддержки<br />для предпринимателей и их семей</p>
           <h1>Найди <em>баланс</em><br />между бизнесом<br />и семьёй</h1>
           <p className="hero-lead">Укрепи себя, сохрани семью<br />и расти в доходе.</p>
           <div className="hero-actions">
@@ -59,7 +59,7 @@ export default async function Home() {
           </div>
         </div>
         <div className="hero-photo">
-          <Image src="/images/hero-team-reference.png" alt="Команда психологического центра" fill priority sizes="(max-width: 800px) 100vw, 55vw" />
+          <Image src="/images/centre-team-real.jpg" alt="Участники встречи центра «Путь к себе»" fill priority sizes="(max-width: 800px) 100vw, 55vw" />
           <div className="hero-quote">Помогаем<br />идти по-настоящему —<br />с опорой для бизнеса и семьи</div>
           <Link className="hero-play" href="/o-centre"><span><PlayIcon /></span><b>Посмотрите<br />о нашем подходе</b></Link>
         </div>

@@ -20,8 +20,8 @@ type PageConfig = {
 
 const pages: Record<string, PageConfig> = {
   specialisty: { eyebrow: "Владивосток · онлайн", title: "Специалисты центра", lead: "Команда, которая работает с предпринимателями, руководителями и семьями — внимательно, системно и по существу.", image: "/images/alena-portrait-2.jpg", type: "specialist" },
-  uslugi: { eyebrow: "Форматы работы", title: "Программы и услуги", lead: "Стратегические сессии, разбор бизнеса и системная работа — под задачу собственника и его текущую точку.", image: "/images/event-2.jpg", type: "program" },
-  meropriyatiya: { eyebrow: "Афиша", title: "Ближайшие мероприятия", lead: "Камерные форматы во Владивостоке, где можно разобрать конкретную ситуацию и увидеть следующий шаг.", image: "/images/team-1.jpeg", type: "event" },
+  uslugi: { eyebrow: "Форматы работы", title: "Программы и услуги", lead: "Стратегические сессии, разбор бизнеса и системная работа — под задачу собственника и его текущую точку.", image: "/images/centre-materials.jpg", type: "program" },
+  meropriyatiya: { eyebrow: "Афиша", title: "Ближайшие мероприятия", lead: "Камерные форматы во Владивостоке, где можно разобрать конкретную ситуацию и увидеть следующий шаг.", image: "/images/centre-interior.jpg", type: "event" },
   "arhiv-meropriyatiy": { eyebrow: "Фото · видео · истории", title: "Архив мероприятий", lead: "Прошедшие встречи центра — материалы, атмосфера и важные моменты, к которым можно вернуться.", image: "/images/event-2.jpg" },
   otzyvy: { eyebrow: "Истории клиентов", title: "Что меняется после работы", lead: "Ясность, спокойствие и решения, которые остаются с человеком после встречи, курса или расстановки.", image: "/images/team-2.jpg", type: "review" },
   "socialnye-seti": { eyebrow: "Будем на связи", title: "Социальные сети", lead: "Новости центра, анонсы мероприятий и материалы об устойчивом состоянии собственника.", image: "/images/team-1.jpeg" },
@@ -52,7 +52,7 @@ function Cards({ items, type }: { items: ContentItem[]; type: ContentType }) {
             <p className="card-subtitle">{item.subtitle}</p>
             <p>{item.body}</p>
             {type === "specialist" && <span className="interior-card-link">Подробнее о специалисте <ArrowIcon /></span>}
-            {type !== "review" && type !== "specialist" && <a href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>}
+            {type !== "review" && type !== "specialist" && item.slug !== "transformacionnye-igry" && <a href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>}
           </div>
         </article>;
         return type === "specialist" ? <Link className="interior-card-wrapper" href={`/specialisty/${item.slug}`} key={item.id}>{card}</Link> : <div className="interior-card-wrapper" key={item.id}>{card}</div>;
@@ -70,9 +70,9 @@ function ReviewsExternal() {
 function SocialNetworks() {
   const networks = [
     ["Telegram", "Новости и анонсы центра", "https://t.me/centre_pathtoyourself"],
+    ["MAX", "+7 914 665-86-53", "https://max.ru/"],
     ["ВКонтакте", "Материалы, события и общение", "https://vk.ru/putkseberu"],
     ["Instagram", "Жизнь центра и короткие заметки", "https://www.instagram.com/itc.put_k_sebe"],
-    ["MAX", "+7 914 665-86-53", "https://max.ru/"],
   ];
   return <section className="social-networks"><span className="section-label">Социальные сети</span><h2>Следите за центром</h2><div>{networks.map(([title, text, href]) => <a key={title} href={href} target="_blank" rel="noreferrer"><strong>{title}</strong><span>{text}</span><ArrowIcon /></a>)}</div></section>;
 }
@@ -131,7 +131,7 @@ function YachtContent() {
 }
 
 function ContactContent() {
-  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><GeneratedIcon name="utility-phone" /> <a href="tel:+79146658653">+7 914 665-86-53</a></p><p><GeneratedIcon name="utility-location" /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><GeneratedIcon name="utility-send" /> <a href="https://t.me/centre_pathtoyourself">Telegram</a> · <a href="https://vk.ru/putkseberu">ВКонтакте</a> · <a href="https://www.instagram.com/itc.put_k_sebe">Instagram</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Бесплатный подбор психолога</h2><LeadForm source="contacts" /></div></section>;
+  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><GeneratedIcon name="utility-phone" /> <a href="tel:+79146658653">+7 914 665-86-53</a></p><p><GeneratedIcon name="utility-location" /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><GeneratedIcon name="utility-send" /> <a href="tg://resolve?phone=79146658653">Telegram</a> · <a href="https://max.ru/">MAX</a> · <a href="https://vk.ru/putkseberu">ВКонтакте</a> · <a href="https://www.instagram.com/itc.put_k_sebe">Instagram</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Бесплатный подбор психолога</h2><LeadForm source="contacts" /></div></section>;
 }
 
 function LegalContent({ offer }: { offer: boolean }) {

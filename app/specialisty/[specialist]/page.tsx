@@ -56,7 +56,13 @@ export default async function SpecialistPage({ params }: { params: Promise<{ spe
         {profile.credentials.length ? <div className="credentials-grid">{profile.credentials.map((src, index) => <a href={src} target="_blank" rel="noreferrer" key={src} aria-label={`Открыть документ ${index + 1}`}><Image src={src} alt={`Документ об образовании ${profile.name}, ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 33vw" /></a>)}</div> : <p className="credentials-pending">Сведения об образовании размещены выше. Сканы дипломов и сертификатов будут добавлены после получения оригиналов от специалиста.</p>}
       </section>
 
-      <section className="specialist-detail-consultation" id="consultation"><div><span className="section-label">Первый шаг</span><h2>Подберём специалиста под ваш запрос</h2><p>Опишите ситуацию — администратор центра поможет выбрать подходящего психолога и формат встречи.</p><Link href="/specialisty">Вернуться ко всем специалистам <ArrowIcon /></Link></div><LeadForm source={`specialist-${profile.slug}`} /></section>
+      <section className="specialist-detail-consultation" id="consultation">
+        <div><span className="section-label">Первый шаг</span><h2>Бесплатный подбор психолога</h2><p>Начните с бесплатной диагностической сессии — обсудим запрос и согласуем дальнейшую работу.</p>
+          <div className="booking-session"><span>Индивидуальная консультация</span>{profile.session ? <><strong>{profile.session.price}</strong><p>{profile.session.duration} · {profile.format.toLowerCase()}</p><small>{profile.session.note}</small></> : <><strong>По вашему запросу</strong><p>Стоимость и длительность уточнит администратор.</p></>}</div>
+          <Link href="/specialisty">Вернуться ко всем специалистам <ArrowIcon /></Link>
+        </div>
+        <LeadForm source={`specialist-${profile.slug}`} specialistName={profile.name} />
+      </section>
     </div>
     <SiteFooter />
   </main>;
