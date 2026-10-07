@@ -1699,7 +1699,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid #9d6d43; outline-offs
 .booking-preview > p:not(.form-note) { font-size: 18px; line-height: 1.65; }
 .resource-test-teaser { padding-top: 65px; padding-bottom: 65px; border-block: 1px solid #dfcfc7; background: linear-gradient(120deg, #efe2db, #faf7f3); }
 .resource-teaser-copy { max-width: 1000px; }
-.resource-teaser-copy h2 { margin: 10px 0 15px; }
+.resource-teaser-copy h2 { margin: 10px 0 15px; font: 400 clamp(36px, 3.5vw, 54px)/1.05 var(--font-display); color: #7d0b24; letter-spacing: -.03em; }
 .resource-teaser-copy > p { max-width: 740px; margin-bottom: 28px; color: #6d605b; font-size: 20px; line-height: 1.6; }
 .resource-result { margin: 0 clamp(48px, 6vw, 116px) 70px; padding: clamp(28px, 4vw, 56px); border: 1px solid #dfd0c7; border-radius: 18px; background: #fffdfb; }
 .resource-result-heading h2, .resource-test-next h2 { margin: 12px 0 20px; font: 400 clamp(36px, 3.5vw, 54px)/1.05 var(--font-display); color: #7d0b24; letter-spacing: -.03em; }
