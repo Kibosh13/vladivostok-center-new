@@ -160,7 +160,7 @@ export const specialistProfiles: SpecialistProfile[] = [
       "Курс «Терапия подавленного гнева», Елена Станковская, 2026 год",
     ],
     experience: "6 лет практики",
-    session: { duration: "60–85 минут", price: "3 000 ₽", note: "Время встречи согласовывается с администратором." },
+    session: { duration: "Уточняется индивидуально", price: "от 7 000 ₽", note: "Время встречи согласовывается с администратором." },
     credentials: credentialPaths("valeria-zabora", 3),
   },
   {

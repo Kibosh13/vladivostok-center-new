@@ -48,7 +48,7 @@ export function LeadForm({ compact = false, source = "site", specialistName }: {
     try {
       void Promise.resolve(context.registerTool({
         name: "submit_consultation_request",
-        title: "Бесплатный подбор психолога",
+        title: "Индивидуальный подбор специалиста",
         description: "Отправляет в центр «Путь к себе» заявку на консультацию с именем и телефоном клиента.",
         inputSchema: {
           type: "object",
@@ -103,14 +103,14 @@ export function LeadForm({ compact = false, source = "site", specialistName }: {
 
   return (
     <form className={compact ? "lead-form compact" : "lead-form"} onSubmit={onSubmit}>
-      {specialistName && <div className="booking-form-heading"><span className="section-label">Запись к специалисту</span><h3>{specialistName}</h3><p>Отправка заявки происходит после бесплатной диагностической сессии.</p></div>}
+      {specialistName && <div className="booking-form-heading"><span className="section-label">Запись к специалисту</span><h3>{specialistName}</h3><p>Вы можете записаться к выбранному специалисту напрямую или попросить помочь с подбором.</p></div>}
       <Input name="name" aria-label="Имя" placeholder="Ваше имя" required minLength={2} />
       <Input name="phone" aria-label="Телефон" placeholder="Телефон" required minLength={6} />
       {!compact && <Input name="email" type="email" aria-label="Email" placeholder="Email (необязательно)" />}
       {!compact && <Textarea name="message" aria-label="О чём хотите поговорить" placeholder="Коротко опишите ваш запрос" rows={3} />}
       {!compact && <label className="form-consent"><input name="consent" type="checkbox" required /><span>Согласен(на) с <Link href="/privacy">политикой конфиденциальности</Link></span></label>}
       <Button className="form-button" type="submit" disabled={state === "loading"}>
-        {state === "loading" ? "Отправляем…" : "Бесплатный подбор психолога"}<ArrowIcon />
+        {state === "loading" ? "Отправляем…" : "Индивидуальный подбор специалиста"}<ArrowIcon />
       </Button>
       {state === "error" && <p className="form-error" role="alert">{error}</p>}
       <p className="form-note">{compact ? "Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности." : "Администратор согласует с вами формат и время встречи."}</p>

@@ -5,6 +5,7 @@ import { LeadForm } from "@/components/lead-form";
 import { ArrowIcon } from "@/components/premium-icons";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { getSpecialistProfile, specialistProfiles } from "@/lib/specialists";
+import { consultationPrice, selectionDescription } from "@/lib/site-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,7 @@ export default async function SpecialistPage({ params }: { params: Promise<{ spe
         <p className="specialist-detail-role">{profile.role}</p>
         <div className="specialist-detail-tags"><span>{profile.format}</span><span>{profile.city}</span>{profile.experience && <span>{profile.experience}</span>}</div>
         <p>{profile.intro}</p>
-        <a className="button" href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>
+        <a className="button" href="#consultation">Индивидуальный подбор специалиста <ArrowIcon /></a>
       </div>
     </section>
 
@@ -57,8 +58,8 @@ export default async function SpecialistPage({ params }: { params: Promise<{ spe
       </section>
 
       <section className="specialist-detail-consultation" id="consultation">
-        <div><span className="section-label">Первый шаг</span><h2>Бесплатный подбор психолога</h2><p>Начните с бесплатной диагностической сессии — обсудим запрос и согласуем дальнейшую работу.</p>
-          <div className="booking-session"><span>Индивидуальная консультация</span>{profile.session ? <><strong>{profile.session.price}</strong><p>{profile.session.duration} · {profile.format.toLowerCase()}</p><small>{profile.session.note}</small></> : <><strong>По вашему запросу</strong><p>Стоимость и длительность уточнит администратор.</p></>}</div>
+        <div><span className="section-label">Первый шаг</span><h2>Индивидуальный подбор специалиста</h2><p>{selectionDescription}</p>
+          <div className="booking-session"><span>Индивидуальная консультация</span><strong>{consultationPrice}</strong><p>{profile.format}</p><small>Длительность и стоимость встречи согласовываются индивидуально.</small></div>
           <Link href="/specialisty">Вернуться ко всем специалистам <ArrowIcon /></Link>
         </div>
         <LeadForm source={`specialist-${profile.slug}`} specialistName={profile.name} />

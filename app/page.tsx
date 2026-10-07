@@ -4,6 +4,8 @@ import { GeneratedIcon, type GeneratedIconName } from "@/components/generated-ic
 import { ArrowIcon, PlayIcon } from "@/components/premium-icons";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { getContent } from "@/lib/content.server";
+import { ResourceTestTeaser } from "@/components/resource-test";
+import { consultationPrice } from "@/lib/site-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -45,12 +47,12 @@ export default async function Home() {
       <SiteHeader />
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">Центр психологической поддержки<br />для предпринимателей и их семей</p>
+          <p className="eyebrow">Центр психологической поддержки<br />для предпринимателей</p>
           <h1>Найди <em>баланс</em><br />между бизнесом<br />и семьёй</h1>
           <p className="hero-lead">Укрепи себя, сохрани семью<br />и расти в доходе.</p>
           <div className="hero-actions">
-            <a className="button" href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>
-            <Link className="button button-light" href="/specialisty">Специалисты центра</Link>
+            <a className="button" href="#consultation">Индивидуальный подбор специалиста <ArrowIcon /></a>
+            <Link className="button button-light" href="/test-na-resursnost">Тест на ресурсность <ArrowIcon /></Link>
           </div>
           <div className="hero-stats" aria-label="О центре">
             <div><strong>20+</strong><span>лет практики</span></div>
@@ -68,8 +70,8 @@ export default async function Home() {
       <section className="path-strip">
         <div className="section-label">Наш путь</div>
         <div className="path-content">
-          <h2>Самый короткий путь к результату</h2>
-          <p>Научный подход. Личный маршрут. Гарантия результата.</p>
+          <h2>Персональный путь к устойчивым изменениям</h2>
+          <p>Индивидуальная стратегия. Фокус на результате.</p>
           <div className="path-grid">
             {pathItems.map(({ icon, label }) => <div className="path-item" key={label}><GeneratedIcon name={icon} /><span>{label}</span></div>)}
           </div>
@@ -104,13 +106,15 @@ export default async function Home() {
           <div className="program-grid">
             {programs.slice(0, 3).map((program, index) => (
               <article className="program-card" key={program.id}>
-                <div className="program-image"><Image src={program.image} alt="" fill sizes="(max-width: 700px) 100vw, 33vw" /></div>
-                <div className="program-card-copy"><h3>{featuredProgramTitles[index] ?? program.title}</h3><p>{program.body}</p><Link href="/uslugi">Узнать больше <ArrowIcon /></Link></div>
+                <Link className="program-image" href={`/uslugi#${program.slug}`} aria-label={`Подробнее: ${featuredProgramTitles[index] ?? program.title}`}><Image src={program.image} alt="" fill sizes="(max-width: 700px) 100vw, 33vw" /></Link>
+                <div className="program-card-copy"><h3>{featuredProgramTitles[index] ?? program.title}</h3><p>{program.body}</p><Link href={`/uslugi#${program.slug}`}>Узнать больше <ArrowIcon /></Link></div>
               </article>
             ))}
           </div>
         </div>
       </section>
+
+      <ResourceTestTeaser />
 
       <section className="income-section section-shell-wide">
         <h2>Доход растёт из устойчивого состояния</h2>
@@ -131,7 +135,7 @@ export default async function Home() {
             {specialists.filter((person) => person.id !== "specialist-alena").map((person) => (
               <Link className="specialist-card specialist-card-link" href={`/specialisty/${person.slug}`} key={person.id}>
                 <div className="specialist-photo"><Image src={person.image} alt={person.title} fill sizes="(max-width: 700px) 100vw, 33vw" /></div>
-                <div><h3>{person.title}</h3><p>{person.subtitle}</p><span className="specialist-card-more">Подробнее <ArrowIcon /></span></div>
+                <div><h3>{person.title}</h3><p>{person.subtitle}</p><p className="specialist-price">{consultationPrice}</p><span className="specialist-card-more">Подробнее <ArrowIcon /></span></div>
               </Link>
             ))}
           </div>
@@ -142,7 +146,7 @@ export default async function Home() {
         <div className="section-label">Основатель<br />центра</div>
         <div className="founder-spotlight-card">
           <div className="founder-spotlight-photo"><Image src="/images/founder-speaking.jpeg" alt="Алёна Савинова" fill sizes="(max-width: 700px) 100vw, 38vw" /></div>
-          <div className="founder-spotlight-copy"><span className="eyebrow">Алёна Савинова</span><h2>Метод, опыт и научная основа центра</h2><p>Бизнес-наставник с опытом 25 лет, системный семейный психолог и автор метода формирования ресурсных систем личности.</p><div className="founder-spotlight-facts"><span>Образование</span><span>Научный подход</span><span>Рецензии</span><span>Книга «Жить ресурсно»</span></div><Link className="button" href="/osnovatel">Познакомиться подробнее <ArrowIcon /></Link></div>
+          <div className="founder-spotlight-copy"><span className="eyebrow">Основатель центра · автор научного метода</span><h2>Алёна Савинова</h2><p>Бизнес-наставник с опытом 25 лет, системный семейный психолог и автор метода формирования ресурсных систем личности.</p><div className="founder-spotlight-facts"><Link href="/osnovatel#education">Образование</Link><Link href="/osnovatel#science">Научный подход</Link><Link href="/osnovatel#reviews">Рецензии</Link><Link href="/osnovatel#book">Книга «Жить ресурсно»</Link></div><Link className="button" href="/osnovatel">Познакомиться подробнее <ArrowIcon /></Link></div>
         </div>
       </section>
 
@@ -159,7 +163,7 @@ export default async function Home() {
 
       <section className="consultation-section" id="consultation">
         <div><h2>Перестань выбирать между бизнесом и семьёй</h2><p>Укрепи себя, сохрани близость и создай условия для роста дохода.</p></div>
-        <Link className="button button-light" href="/kontakty">Бесплатный подбор психолога <ArrowIcon /></Link>
+        <Link className="button button-light" href="/kontakty">Индивидуальный подбор специалиста <ArrowIcon /></Link>
       </section>
       <SiteFooter />
     </main>

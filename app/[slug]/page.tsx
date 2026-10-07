@@ -7,6 +7,9 @@ import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { LeadForm } from "@/components/lead-form";
 import { getContent } from "@/lib/content.server";
 import { safeMeta, type ContentItem, type ContentType } from "@/lib/content";
+import { FounderContent, EducationContent, ScienceContent, BookContent } from "@/components/founder-content";
+import { ResourceTestContent } from "@/components/resource-test";
+import { consultationPrice, selectionDescription, whatsappUrl } from "@/lib/site-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +22,7 @@ type PageConfig = {
 };
 
 const pages: Record<string, PageConfig> = {
+  "test-na-resursnost": { eyebrow: "Авторский тест Алёны Савиновой", title: "Тест на ресурсность", lead: "Поймите, на что вы опираетесь сейчас и каким сферам жизни нужно больше внимания.", image: "/images/founder-speaking.jpeg" },
   specialisty: { eyebrow: "Владивосток · онлайн", title: "Специалисты центра", lead: "Команда, которая работает с предпринимателями, руководителями и семьями — внимательно, системно и по существу.", image: "/images/alena-portrait-2.jpg", type: "specialist" },
   uslugi: { eyebrow: "Форматы работы", title: "Программы и услуги", lead: "Стратегические сессии, разбор бизнеса и системная работа — под задачу собственника и его текущую точку.", image: "/images/centre-materials.jpg", type: "program" },
   meropriyatiya: { eyebrow: "Афиша", title: "Ближайшие мероприятия", lead: "Камерные форматы во Владивостоке, где можно разобрать конкретную ситуацию и увидеть следующий шаг.", image: "/images/centre-interior.jpg", type: "event" },
@@ -44,15 +48,16 @@ function Cards({ items, type }: { items: ContentItem[]; type: ContentType }) {
   return (
     <section className={`interior-grid ${type === "review" ? "review-cards" : ""} ${type === "event" ? "event-cards" : ""} ${type === "program" ? "program-cards" : ""}`}>
       {items.map((item) => {
-        const card = <article className="interior-card">
+        const card = <article className="interior-card" id={item.slug}>
           {item.image && <div className="interior-card-image"><Image src={item.image} alt={item.title} fill sizes="(max-width: 700px) 100vw, 33vw" /></div>}
           <div className="interior-card-copy">
             {type === "review" && <span className="quote-mark">“</span>}
             <h2>{item.title}</h2>
             <p className="card-subtitle">{item.subtitle}</p>
             <p>{item.body}</p>
+            {type === "specialist" && <p className="specialist-price">{consultationPrice}</p>}
             {type === "specialist" && <span className="interior-card-link">Подробнее о специалисте <ArrowIcon /></span>}
-            {type !== "review" && type !== "specialist" && item.slug !== "transformacionnye-igry" && <a href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a>}
+            {type !== "review" && type !== "specialist" && item.slug !== "transformacionnye-igry" && <a href="#consultation">Индивидуальный подбор специалиста <ArrowIcon /></a>}
           </div>
         </article>;
         return type === "specialist" ? <Link className="interior-card-wrapper" href={`/specialisty/${item.slug}`} key={item.id}>{card}</Link> : <div className="interior-card-wrapper" key={item.id}>{card}</div>;
@@ -85,27 +90,6 @@ function EventArchive({ items }: { items: ContentItem[] }) {
   return <section className="event-archive-grid">{items.map((item) => <article key={item.id}><div className="event-archive-image"><Image src={item.image} alt={item.title} fill sizes="(max-width: 700px) 100vw, 46vw" /></div><div><span className="section-label">Прошедшее мероприятие</span><h2>{item.title}</h2><p className="card-subtitle">{item.subtitle}</p><p>{item.body}</p><span className="media-coming">Фото и видео будут добавлены</span></div></article>)}</section>;
 }
 
-function FounderContent() {
-  return <>
-    <section className="editorial-split">
-      <div><span className="section-label">О подходе</span><h2>Бизнес не существует отдельно от состояния владельца</h2></div>
-      <div className="rich-copy"><p>Алёна Савинова — создатель международного тренингового центра «Путь к себе». Помогает находить скрытые причины стагнации, возвращать ясность и собирать устойчивую систему решений.</p><p>В основе работы — авторский метод формирования ресурсных систем личности, системные расстановки, семейная психотерапия и практический предпринимательский опыт.</p><ul><li>Бизнес-наставник с опытом 25 лет</li><li>Системный семейный психолог с опытом 20 лет</li><li>Сертифицированный коуч ICF и системный расстановщик</li><li>Эксперт федеральных телеканалов</li><li>Действительный член Общероссийской профессиональной психотерапевтической лиги</li><li>Автор книги «Жить ресурсно»</li></ul></div>
-    </section>
-    <section className="book-block"><div><span className="section-label">Книга</span><h2>«Жить ресурсно»</h2><p>Книга соединяет психологию ресурса с практиками, которые помогают замечать собственные состояния, возвращать осознанность и менять привычные стратегии.</p><a className="button" href="https://alenasavinova.ru" target="_blank" rel="noreferrer">Приобрести книгу <ArrowIcon /></a></div><div className="book-quote">«Ресурс не нужно искать за тридевять земель. Он всегда с вами — важно научиться его видеть и использовать»</div></section>
-  </>;
-}
-
-function EducationContent() {
-  const education = [
-    ["1999–2004", "Дальневосточный государственный технический университет", "Социальная психология · психолог"],
-    ["2009–2011", "Институт интегративной системной терапии", "Системные расстановки · системный расстановщик"],
-    ["2012–2014", "Институт интегративной семейной терапии", "Семейная психотерапия и консультирование"],
-  ];
-  return <>
-    <section className="education-list"><span className="section-label">Базовое образование</span>{education.map(([year, school, detail]) => <article key={year}><span>{year}</span><div><h2>{school}</h2><p>{detail}</p></div></article>)}</section>
-    <section className="science-block"><span className="section-label">Научная работа</span><h2>Авторский метод подтверждён рецензиями ведущих учёных</h2><div className="science-grid"><blockquote>«Особенность метода — воздействие на когнитивный, эмоциональный и социальный уровни личности»<footer>М. Г. Чухрова, доктор медицинских наук</footer></blockquote><blockquote>«Работа становится ориентиром для дальнейших исследований и практики»<footer>В. В. Козлов, профессор ЯрГУ</footer></blockquote></div><p>Статья принята к публикации в Международном научно-исследовательском журнале из перечня ВАК, выпуск № 5(155).</p></section>
-  </>;
-}
 
 function CourseContent() {
   const lessons = [
@@ -131,7 +115,7 @@ function YachtContent() {
 }
 
 function ContactContent() {
-  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><GeneratedIcon name="utility-phone" /> <a href="tel:+79146658653">+7 914 665-86-53</a></p><p><GeneratedIcon name="utility-location" /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><GeneratedIcon name="utility-send" /> <a href="tg://resolve?phone=79146658653">Telegram</a> · <a href="https://max.ru/">MAX</a> · <a href="https://vk.ru/putkseberu">ВКонтакте</a> · <a href="https://www.instagram.com/itc.put_k_sebe">Instagram</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Бесплатный подбор психолога</h2><LeadForm source="contacts" /></div></section>;
+  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><GeneratedIcon name="utility-phone" /> <a href="tel:+79146658653">+7 914 665-86-53</a></p><p><GeneratedIcon name="utility-location" /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><GeneratedIcon name="utility-send" /> <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a> · <a href="tg://resolve?phone=79146658653">Telegram</a> · <a href="https://max.ru/">MAX</a> · <a href="https://vk.ru/putkseberu">ВКонтакте</a> · <a href="https://www.instagram.com/itc.put_k_sebe">Instagram</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Индивидуальный подбор специалиста</h2><p>{selectionDescription}</p><LeadForm source="contacts" /></div></section>;
 }
 
 function LegalContent({ offer }: { offer: boolean }) {
@@ -148,22 +132,23 @@ export default async function InteriorPage({ params }: { params: Promise<{ slug:
   const archivedEvents = items.filter((item) => safeMeta(item).archived === "true");
   return <main>
     <SiteHeader />
-    <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p><a className="button" href="#consultation">Бесплатный подбор психолога <ArrowIcon /></a></div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>
+    <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p><a className="button" href={slug === "test-na-resursnost" ? "#take-test" : "#consultation"}>{slug === "test-na-resursnost" ? "Пройти тест" : "Индивидуальный подбор специалиста"} <ArrowIcon /></a></div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>
     <div className="interior-body">
       {page.type && slug !== "meropriyatiya" && <Cards items={visibleItems} type={page.type} />}
       {slug === "meropriyatiya" && <><Cards items={upcomingEvents} type="event" /><EventsArchiveEntry /></>}
       {slug === "arhiv-meropriyatiy" && <EventArchive items={archivedEvents} />}
       {slug === "otzyvy" && <ReviewsExternal />}
       {slug === "socialnye-seti" && <SocialNetworks />}
-      {slug === "osnovatel" && <><FounderContent /><EducationContent /></>}
-      {slug === "obrazovanie" && <EducationContent />}
+      {slug === "osnovatel" && <><FounderContent /><EducationContent /><ScienceContent /><BookContent /></>}
+      {slug === "obrazovanie" && <><EducationContent /><ScienceContent /></>}
+      {slug === "test-na-resursnost" && <ResourceTestContent />}
       {slug === "putksebe" && <CourseContent />}
       {slug === "rassvet-biznesa" && <YachtContent />}
       {slug === "contacts" && <ContactContent />}
       {slug === "contacts" && <SocialNetworks />}
       {slug === "privacy" && <LegalContent offer={false} />}
       {slug === "offer" && <LegalContent offer />}
-      {slug !== "contacts" && slug !== "privacy" && slug !== "offer" && <section className="interior-consultation" id="consultation"><div><span className="section-label">Первый шаг</span><h2>Подберём формат под вашу задачу</h2><p>Оставьте контакты — обсудим ситуацию и предложим следующий шаг.</p></div><LeadForm source={`page-${slug}`} /></section>}
+      {slug !== "test-na-resursnost" && slug !== "contacts" && slug !== "privacy" && slug !== "offer" && <section className="interior-consultation" id="consultation"><div><span className="section-label">Первый шаг</span><h2>Индивидуальный подбор специалиста</h2><p>{selectionDescription}</p></div><LeadForm source={`page-${slug}`} /></section>}
     </div>
     <SiteFooter />
   </main>;

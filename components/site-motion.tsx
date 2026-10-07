@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 const revealSelectors = [
+  ".resource-test-teaser", ".resource-result", ".resource-test-next",
   ".path-strip", ".pain-section", ".results-section", ".programs-section",
   ".income-section", ".specialists-section", ".reviews-section", ".consultation-section",
   ".interior-hero", ".editorial-split", ".education-list", ".science-block",
