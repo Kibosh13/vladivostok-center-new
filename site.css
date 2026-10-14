@@ -1722,7 +1722,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid #9d6d43; outline-offs
 .home-reference .hero-photo img { object-position: 50% 78%; }
 .specialist-booking { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(30px, 6vw, 100px); padding: clamp(32px, 5vw, 70px); margin-bottom: 70px; background: #eee3da; border-radius: 18px; }
 .specialist-booking h2 { margin: 14px 0 24px; color: #7d0b24; font: 400 clamp(32px, 3vw, 46px)/1.1 var(--font-display); }
-.booking-fields { border: 0; padding: 0; margin: 18px 0 0; min-width: 0; display: grid; gap: 16px; }
+.booking-fields { grid-column: 1 / -1; border: 0; padding: 0; margin: 18px 0 0; min-width: 0; display: grid; gap: 16px; }
+.booking-form [data-booking-result] { grid-column: 1 / -1; }
 .booking-fields label { display: grid; gap: 7px; font-size: 16px; }
 .booking-fields input:not([type=checkbox]), .booking-fields textarea { width: 100%; min-width: 0; padding: 13px 15px; border: 1px solid #d7c5bb; background: #fffdfb; border-radius: 6px; font: inherit; color: #362b27; }
 .booking-fields:disabled { opacity: .6; }
