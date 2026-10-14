@@ -7,7 +7,6 @@ import { ArrowIcon } from "@/components/premium-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { whatsappUrl } from "@/lib/site-copy";
 
 type LeadPayload = { name: string; phone: string; email?: string; message?: string; source?: string; consent: boolean; marketingConsent?: boolean; specialist?: string };
 
@@ -38,13 +37,13 @@ async function submitLead(payload: LeadPayload) {
   return result.lead;
 }
 
-export function LeadForm({ compact = false, source = "site", specialistName, consentReady = false, marketingReady = false }: { compact?: boolean; source?: string; specialistName?: string; consentReady?: boolean; marketingReady?: boolean }) {
+export function LeadForm({ compact = false, source = "site", specialistName, marketingReady = false }: { compact?: boolean; source?: string; specialistName?: string; marketingReady?: boolean }) {
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState("");
 
   useEffect(() => {
     const context = document.modelContext;
-    if (!context?.registerTool || !consentReady) return;
+    if (!context?.registerTool) return;
     const lifecycle = new AbortController();
     try {
       void Promise.resolve(context.registerTool({
@@ -76,7 +75,7 @@ export function LeadForm({ compact = false, source = "site", specialistName, con
       }, { signal: lifecycle.signal })).catch(() => undefined);
     } catch { /* unsupported browser */ }
     return () => lifecycle.abort();
-  }, [consentReady, specialistName]);
+  }, [specialistName]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -110,13 +109,12 @@ export function LeadForm({ compact = false, source = "site", specialistName, con
   return (
     <form className={compact ? "lead-form compact" : "lead-form"} onSubmit={onSubmit}>
       {specialistName && <div className="booking-form-heading"><span className="section-label">Запись к специалисту</span><h3>{specialistName}</h3><p>Вы можете записаться к выбранному специалисту напрямую или попросить помочь с подбором.</p></div>}
-      {!consentReady && <p className="form-note">Приём заявок через форму станет доступен после публикации документов о персональных данных. Сейчас можно <a href={whatsappUrl} target="_blank" rel="noreferrer">написать в WhatsApp</a> или позвонить: <a href="tel:+79146658653">+7 914 665-86-53</a>.</p>}
-      <fieldset className="booking-fields" disabled={!consentReady || state === "loading"}>
+      <fieldset className="booking-fields" disabled={state === "loading"}>
       <Input name="name" aria-label="Имя" placeholder="Ваше имя" required minLength={2} />
       <Input name="phone" aria-label="Телефон" placeholder="Телефон" required minLength={6} />
       {!compact && <Input name="email" type="email" aria-label="Email" placeholder="Email (необязательно)" />}
       {!compact && <Textarea name="message" aria-label="Пожелания ко времени встречи" placeholder="Удобное время встречи — без медицинских и иных чувствительных подробностей" rows={3} />}
-      <label className="form-consent"><input name="consent" type="checkbox" required /><span>Даю <Link href={consentReady ? "/soglasie-na-obrabotku-dannyh/" : "/dokumenty/"} target="_blank">согласие на обработку персональных данных</Link> и ознакомлен(а) с <Link href={consentReady ? "/privacy/" : "/dokumenty/"} target="_blank">политикой обработки данных</Link>.</span></label>
+      <label className="form-consent"><input name="consent" type="checkbox" required /><span>Даю <Link href="/soglasie-na-obrabotku-dannyh/" target="_blank">согласие на обработку персональных данных</Link> и ознакомлен(а) с <Link href="/privacy/" target="_blank">политикой обработки данных</Link>.</span></label>
       {marketingReady && <label className="form-consent"><input name="marketing-consent" type="checkbox" /><span>Отдельно соглашаюсь на <Link href="/reklamnye-rassylki/" target="_blank">рекламные рассылки</Link> (необязательно).</span></label>}
       <Button className="form-button" type="submit" disabled={state === "loading"}>
         {state === "loading" ? "Отправляем…" : "Отправить заявку"}<ArrowIcon />

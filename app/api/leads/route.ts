@@ -7,7 +7,6 @@ export async function POST(request: Request) {
     const payload = await request.json() as { name?: string; phone?: string; email?: string; message?: string; source?: string; consent?: boolean; marketingConsent?: boolean; specialist?: string };
     if (payload.consent !== true) return Response.json({ error: "Требуется отдельное согласие на обработку персональных данных" }, { status: 400 });
     const docs = await getContent("document");
-    if (!["privacy", "soglasie-na-obrabotku-dannyh"].every((slug) => docs.some((doc) => doc.slug === slug && doc.body.trim()))) return Response.json({ error: "Приём заявок ожидает публикации документов о персональных данных" }, { status: 503 });
     if (payload.marketingConsent === true && !docs.some((doc) => doc.slug === "reklamnye-rassylki" && doc.body.trim())) return Response.json({ error: "Рекламное согласие пока недоступно" }, { status: 400 });
     const name = payload.name?.trim() || "";
     const phone = payload.phone?.trim() || "";

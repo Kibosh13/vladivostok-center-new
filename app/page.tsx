@@ -5,7 +5,7 @@ import { ArrowIcon, PlayIcon } from "@/components/premium-icons";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { getContent } from "@/lib/content.server";
 import { ResourceTestTeaser } from "@/components/resource-test";
-import { consultationPrice } from "@/lib/site-copy";
+import { consultationPrice, resourceTestUrl } from "@/lib/site-copy";
 import { defaultPageSeo, organizationSchema } from "@/lib/seo";
 import { StructuredData } from "@/components/structured-data";
 
@@ -59,7 +59,7 @@ export default async function Home() {
           <p className="hero-lead">Укрепи себя, сохрани семью<br />и расти в доходе.</p>
           <div className="hero-actions">
             <Link className="button" href="/specialisty">Индивидуальный подбор специалиста <ArrowIcon /></Link>
-            <Link className="button button-light" href="/test-na-resursnost">Тест на ресурсность <ArrowIcon /></Link>
+            <a className="button button-light" href={resourceTestUrl} target="_blank" rel="noreferrer">Тест на ресурсность <ArrowIcon /></a>
           </div>
           <div className="hero-stats" aria-label="О центре">
             <div><strong>20+</strong><span>лет практики</span></div>

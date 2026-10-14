@@ -8,7 +8,7 @@ import { getContent } from "@/lib/content.server";
 import { safeMeta, legalDocumentDefinitions, type ContentItem, type ContentType } from "@/lib/content";
 import { FounderContent, EducationContent, ScienceContent, BookContent } from "@/components/founder-content";
 import { ResourceTestContent } from "@/components/resource-test";
-import { consultationPrice, selectionDescription, whatsappUrl } from "@/lib/site-copy";
+import { consultationPrice, resourceTestUrl, selectionDescription, whatsappUrl } from "@/lib/site-copy";
 import { defaultPageSeo, personSchema, siteOrigin } from "@/lib/seo";
 import { StructuredData } from "@/components/structured-data";
 import { specialistProfiles } from "@/lib/specialists";
@@ -88,11 +88,11 @@ function SocialNetworks() {
 }
 
 function EventsArchiveEntry() {
-  return <section className="events-archive-entry"><div><span className="section-label">Прошедшие встречи</span><h2>Архив мероприятий</h2><p>Здесь будут собраны фото, видео и материалы прошедших встреч. Раздел уже готов к пополнению.</p></div><Link className="button button-light" href="/arhiv-meropriyatiy">Открыть архив <ArrowIcon /></Link></section>;
+  return <section className="events-archive-entry"><div><span className="section-label">Прошедшие встречи</span><h2>Архив мероприятий</h2><p>Мастер-классы, встречи и практики центра, к которым можно вернуться.</p></div><Link className="button button-light" href="/arhiv-meropriyatiy">Открыть архив <ArrowIcon /></Link></section>;
 }
 
 function EventArchive({ items }: { items: ContentItem[] }) {
-  return <section className="event-archive-grid">{items.map((item) => <article key={item.id}><div className="event-archive-image"><Image src={item.image} alt={item.title} fill sizes="(max-width: 700px) 100vw, 46vw" /></div><div><span className="section-label">Прошедшее мероприятие</span><h2>{item.title}</h2><p className="card-subtitle">{item.subtitle}</p><p>{item.body}</p><span className="media-coming">Фото и видео будут добавлены</span></div></article>)}</section>;
+  return <section className="event-archive-grid">{items.map((item) => <article key={item.id} id={item.slug}><div className="event-archive-image"><Image src={item.image} alt={item.title} fill sizes="(max-width: 700px) 100vw, 46vw" /></div><div className="event-archive-copy"><span className="section-label">Прошедшее мероприятие</span><h2>{item.title}</h2><p className="card-subtitle">{item.subtitle}</p><p className="event-archive-description">{item.body.length > 220 ? item.body.slice(0, 220).replace(/\s+\S*$/, "") + "…" : item.body}</p><details><summary>Подробнее о мероприятии</summary><p>{item.body}</p></details></div></article>)}</section>;
 }
 
 
@@ -145,7 +145,7 @@ export default async function InteriorPage({ params }: { params: Promise<{ slug:
     {slug === "osnovatel" && <StructuredData value={personSchema("Алёна Савинова", "osnovatel", "Бизнес-психолог, основатель центра", page.image)} />}
     {slug === "specialisty" && <StructuredData value={specialistProfiles.map((profile) => personSchema(profile.name, `specialisty/${profile.slug}`, profile.role, profile.image))} />}
     {slug === "uslugi" && <StructuredData value={visibleItems.map((item) => ({ "@context": "https://schema.org", "@type": "Service", name: item.title, description: item.body, url: `${siteOrigin}/uslugi/#${item.slug}`, provider: { "@type": "Organization", name: "Путь к себе", "@id": `${siteOrigin}/#organization` } }))} />}
-    <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p>{!document && slug !== "dokumenty" && <Link className="button" href={slug === "test-na-resursnost" ? "/test-na-resursnost#take-test" : "/specialisty"}>{slug === "test-na-resursnost" ? "Пройти тест" : "Индивидуальный подбор специалиста"} <ArrowIcon /></Link>}</div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>
+    {slug === "arhiv-meropriyatiy" ? <section className="archive-page-heading"><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p></section> : <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p>{!document && slug !== "dokumenty" && (slug === "test-na-resursnost" ? <a className="button" href={resourceTestUrl} target="_blank" rel="noreferrer">Пройти тест <ArrowIcon /></a> : <Link className="button" href="/specialisty">Индивидуальный подбор специалиста <ArrowIcon /></Link>)}</div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>}
     <div className="interior-body">
       {page.type && slug !== "meropriyatiya" && <Cards items={visibleItems} type={page.type} />}
       {slug === "meropriyatiya" && <><Cards items={upcomingEvents} type="event" /><EventsArchiveEntry /></>}
@@ -160,7 +160,7 @@ export default async function InteriorPage({ params }: { params: Promise<{ slug:
       {slug === "contacts" && <ContactContent />}
       {slug === "contacts" && <SocialNetworks />}
       {document && <LegalContent item={document} />}
-      {slug === "dokumenty" && <section className="legal-documents-list">{documents.map((item) => item.published && item.body.trim() ? <Link key={item.id} href={`/${item.slug}/`}>{item.title}<ArrowIcon /></Link> : <div key={item.id}><span>{item.title}</span><small>Текст готовится к публикации</small></div>)}</section>}
+      {slug === "dokumenty" && <section className="legal-documents-list">{documents.filter((item) => item.published && item.body.trim()).map((item) => <Link key={item.id} href={`/${item.slug}/`}>{item.title}<ArrowIcon /></Link>)}</section>}
     </div>
     <SiteFooter />
   </main>;

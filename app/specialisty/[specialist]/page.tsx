@@ -31,7 +31,6 @@ export default async function SpecialistPage({ params }: { params: Promise<{ spe
   const profile = getSpecialistProfile(specialist);
   if (!profile) notFound();
   const documents = await getContent("document");
-  const consentReady = ["privacy", "soglasie-na-obrabotku-dannyh"].every((slug) => documents.some((doc) => doc.slug === slug && doc.body.trim()));
   const marketingReady = documents.some((doc) => doc.slug === "reklamnye-rassylki" && doc.body.trim());
 
   return <main>
@@ -60,17 +59,17 @@ export default async function SpecialistPage({ params }: { params: Promise<{ spe
         <ol>{profile.education.map((item, index) => <li key={item}><span>{String(index + 1).padStart(2, "0")}</span><p>{item}</p></li>)}</ol>
       </section>
 
-      <section className="credentials-section">
+      {profile.credentials.length > 0 && <section className="credentials-section">
         <div className="credentials-heading"><div><span className="section-label">Документы специалиста</span><h2>Дипломы и сертификаты</h2></div><p>Нажмите на документ, чтобы открыть его в полном размере.</p></div>
         {profile.credentials.length ? <div className="credentials-grid">{profile.credentials.map((src, index) => <a href={src} target="_blank" rel="noreferrer" key={src} aria-label={`Открыть документ ${index + 1}`}><Image src={src} alt={`Документ об образовании ${profile.name}, ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 33vw" /></a>)}</div> : <p className="credentials-pending">Сведения об образовании размещены выше. Сканы дипломов и сертификатов будут добавлены после получения оригиналов от специалиста.</p>}
-      </section>
+      </section>}
 
       <section className="specialist-booking" id="booking">
         <div className="specialist-booking-heading"><span className="section-label">Индивидуальная консультация</span><h2>Запись к специалисту</h2>
           <p className="specialist-price">{consultationPrice} · {profile.format}</p><p>Длительность и стоимость встречи согласовываются индивидуально.</p>
           <Link href="/specialisty">Вернуться ко всем специалистам <ArrowIcon /></Link>
         </div>
-        <LeadForm source={`specialist-${profile.slug}`} specialistName={profile.name} consentReady={consentReady} marketingReady={marketingReady} />
+        <LeadForm source={`specialist-${profile.slug}`} specialistName={profile.name} marketingReady={marketingReady} />
       </section>
     </div>
     <SiteFooter />

@@ -5,6 +5,5 @@ export const consultationPrice = "от 7 000 ₽";
 export const whatsappUrl = "https://wa.me/79057853670";
 export const whatsappRequest = (message: string) => `${whatsappUrl}?text=${encodeURIComponent(message)}`;
 export const resourceTestRequest = whatsappRequest("Здравствуйте! Хочу пройти авторский тест на ресурсность Алёны Савиновой и получить расшифровку.");
-// Replace with the client's actual questionnaire URL when provided. Do not invent questions/scoring.
-export const resourceTestUrl = "";
+export const resourceTestUrl = "https://forms.yandex.ru/u/686b6ebfe010db88ce98adf5/";
 export const resourceTestCompletion = "Расшифровку теста для вас сделает лично Алёна Савинова.";

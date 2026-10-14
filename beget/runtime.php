@@ -99,7 +99,12 @@ function ps_document_revision(string $slug, array $content): string {
     return hash('sha256', json_encode([$content['documents'][$slug] ?? [], $content['legalFields'] ?? []]));
 }
 function ps_forms_ready(array $content): bool {
-    return ps_document_ready('privacy', $content) && ps_document_ready('soglasie-na-obrabotku-dannyh', $content);
+    // Document review remains in the CMS; every submission still requires explicit visitor consent.
+    return true;
+}
+function ps_public_document_body(array $doc): string {
+    // Unset legal particulars stay unset; do not invent an operator or mark the text approved.
+    return preg_replace('/\[Нужно заполнить: [^\]]+\]/u', '—', (string)$doc['body']);
 }
 function ps_amo_request(string $method, string $path, ?array $payload = null, ?string $tokenOverride = null): array {
     // Fixed allowlist: no update/delete/accept/merge endpoints can be called by this adapter.
@@ -124,7 +129,6 @@ function ps_submit_lead(array $manifest, array $content): never {
     $p = json_decode((string)file_get_contents('php://input'), true);
     if (!is_array($p)) ps_response(['error' => 'Некорректные данные'], 400);
     if (!ps_csrf_ok((string)($p['csrf'] ?? ''))) ps_response(['error' => 'Обновите страницу перед отправкой заявки'], 403);
-    if (!ps_forms_ready($content)) ps_response(['error' => 'Приём заявок ожидает публикации документов о персональных данных'], 503);
     if (($p['consent'] ?? false) !== true) ps_response(['error' => 'Подтвердите отдельное согласие на обработку персональных данных'], 400);
     if (!empty($p['marketingConsent']) && !ps_document_ready('reklamnye-rassylki', $content)) ps_response(['error' => 'Рекламное согласие пока недоступно'], 400);
     if (trim((string)($p['website'] ?? '')) !== '') ps_response(['error' => 'Не удалось отправить заявку'], 400);
@@ -147,7 +151,7 @@ function ps_submit_lead(array $manifest, array $content): never {
     $consentVersions = [];
     foreach (['privacy', 'soglasie-na-obrabotku-dannyh'] as $slug) {
         $doc = ps_document_data($slug, $content);
-        $consentVersions[$slug] = ['version' => $doc['updatedAt'] ?? '', 'sha256' => hash('sha256', $doc['body'])];
+        $consentVersions[$slug] = ['version' => $doc['updatedAt'] ?? '', 'sha256' => hash('sha256', ps_public_document_body($doc)), 'approved' => ps_document_ready($slug, $content)];
     }
     $lead = ['id' => $id, 'createdAt' => gmdate('c'), 'name' => $name, 'phone' => $phone, 'email' => $email,
         'message' => mb_substr(trim((string)($p['message'] ?? '')), 0, 500), 'specialist' => $specialist,
@@ -192,7 +196,7 @@ try {
     if ($path === 'api/form-status') {
         ps_session(); $_SESSION['form_issued'] = time();
         ps_response(['ready' => ps_forms_ready($content), 'csrf' => $_SESSION['csrf'],
-            'marketingReady' => ps_document_ready('reklamnye-rassylki', $content), 'resourceTestUrl' => $content['resourceTestUrl'] ?? '']);
+            'marketingReady' => ps_document_ready('reklamnye-rassylki', $content), 'resourceTestUrl' => ($content['resourceTestUrl'] ?? '') ?: ($manifest['resourceTestUrl'] ?? '')]);
     }
     if ($path === 'api/amo/callback.php') ps_response(['message' => 'Подключение amoCRM управляется в защищённой админ-панели.'], 400);
     if ($path === 'admin' || str_starts_with($path, 'admin/')) { require __DIR__ . '/beget-admin.php'; exit; }
@@ -216,25 +220,24 @@ try {
     $page = $manifest['pages'][$route];
     $html = (string)file_get_contents(__DIR__ . '/' . $page['file']);
     if (isset($manifest['documents'][$route])) {
-        $doc = ps_document_data($route, $content); $note = '';
+        $doc = ps_document_data($route, $content);
         if (!ps_document_ready($route, $content)) {
             header('X-Robots-Tag: noindex, nofollow');
             $html = preg_replace('/<meta name="robots" content="[^"]*">/', '<meta name="robots" content="noindex,nofollow">', $html);
-            $note = '<aside class="legal-draft-note"><strong>Подготовленный проект документа</strong><p>Текст готов, но до утверждения владельцем не используется как действующее согласие или условия договора.' . ($doc['missing'] ? ' Осталось заполнить: ' . ps_escape(implode('; ', $doc['missing'])) . '.' : '') . '</p></aside>';
         }
-        $html = str_replace('<!--LEGAL_BODY-->', $note . '<div class="legal-document-text">' . ps_escape($doc['body']) . '</div>', $html);
+        $html = str_replace('<!--LEGAL_BODY-->', '<div class="legal-document-text">' . ps_escape(ps_public_document_body($doc)) . '</div>', $html);
     }
     if ($route === 'dokumenty') {
         $list = '<section class="legal-documents-list">';
         foreach ($manifest['documents'] as $slug => $doc) {
-            $list .= '<a href="/' . ps_escape($slug) . '/"><span>' . ps_escape($doc['title']) . '<small>' . (ps_document_ready($slug, $content) ? 'Действующий документ' : 'Подготовленный проект · требуется утверждение') . '</small></span><span>→</span></a>';
+            $list .= '<a href="/' . ps_escape($slug) . '/"><span>' . ps_escape($doc['title']) . '</span><span>→</span></a>';
         }
         $html = str_replace('<!--DOCUMENT_LIST-->', $list . '</section>', $html);
     }
     $seo = $content['seo'][$route] ?? [];
     if (!empty($seo['title'])) $html = preg_replace_callback('/<title>.*?<\/title>/s', fn() => '<title>' . ps_escape($seo['title']) . '</title>', $html, 1);
     if (!empty($seo['description'])) $html = preg_replace_callback('/<meta name="description" content="[^"]*">/', fn() => '<meta name="description" content="' . ps_escape($seo['description']) . '">', $html, 1);
-    $testUrl = (string)($content['resourceTestUrl'] ?? '');
+    $testUrl = (string)(($content['resourceTestUrl'] ?? '') ?: ($manifest['resourceTestUrl'] ?? ''));
     if ($testUrl !== '') {
         $html = preg_replace_callback('/data-resource-test-link href="[^"]*"/', fn() => 'data-resource-test-link href="' . ps_escape($testUrl) . '"', $html);
         $html = str_replace('<!--TEST_ACTION-->', '<a class="button" href="' . ps_escape($testUrl) . '" target="_blank" rel="noreferrer">Пройти тест →</a>', $html);

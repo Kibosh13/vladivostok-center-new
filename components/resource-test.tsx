@@ -1,10 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowIcon } from "@/components/premium-icons";
 import { resourceTestUrl } from "@/lib/site-copy";
 
 export function ResourceTestTeaser() {
-  return <section className="resource-test-teaser section-shell" id="resource-test"><div className="section-label">Первый шаг<br />к балансу</div><div className="resource-teaser-copy"><span className="eyebrow">Авторский тест Алёны Савиновой</span><h2>Тест на ресурсность</h2><p>Поймите, где сейчас хватает внутренней опоры, а каким сферам нужно больше внимания. Посмотрите пример результата и получите личную расшифровку.</p><Link className="button" href="/test-na-resursnost">Пройти тест <ArrowIcon /></Link></div></section>;
+  return <section className="resource-test-teaser section-shell" id="resource-test"><div className="section-label">Первый шаг<br />к балансу</div><div className="resource-teaser-copy"><span className="eyebrow">Авторский тест Алёны Савиновой</span><h2>Тест на ресурсность</h2><p>Поймите, где сейчас хватает внутренней опоры, а каким сферам нужно больше внимания. Посмотрите пример результата и получите личную расшифровку.</p><a className="button" href={resourceTestUrl} target="_blank" rel="noreferrer">Пройти тест <ArrowIcon /></a></div></section>;
 }
 
 export function ResourceTestContent() {
