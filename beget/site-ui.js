@@ -3,7 +3,8 @@
   const forms = [...document.querySelectorAll('[data-booking-form]')];
   let status;
   const loadStatus = () => fetch('/api/form-status', { credentials: 'same-origin', cache: 'no-store' })
-    .then(r => { if (!r.ok) throw new Error('status'); return r.json(); });
+    .then(r => { if (!r.ok) throw new Error('status'); return r.json(); })
+    .catch(() => { throw new Error('Не удалось подготовить отправку. Обновите страницу или позвоните в центр.'); });
   const applyStatus = s => {
     status = s;
     forms.forEach(form => {
@@ -35,7 +36,7 @@
         if (!response.ok) throw new Error(json.error || 'Не удалось отправить заявку. Позвоните в центр.');
         result.textContent = json.message || 'Заявка сохранена. Администратор свяжется с вами.';
         form.reset(); requestKey = crypto.randomUUID();
-      } catch (e) { result.textContent = e.message; }
+      } catch (e) { result.textContent = e instanceof TypeError ? 'Не удалось отправить заявку. Проверьте соединение или позвоните в центр.' : e.message; }
       finally { sending = false; fieldset.disabled = false; }
     });
   });
