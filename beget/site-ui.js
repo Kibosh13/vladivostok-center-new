@@ -39,15 +39,33 @@
       finally { sending = false; fieldset.disabled = false; }
     });
   });
-  try {
-    if (!localStorage.getItem('ps-cookie-notice')) {
+  const cookieChoiceKey = 'ps-cookie-choice-v2', cookieVersion = '2026-10-14.1';
+  const openCookieChoice = () => {
+    if (document.querySelector('.cookie-notice')) return;
       const notice = document.createElement('aside'); notice.className = 'cookie-notice';
-      notice.setAttribute('aria-label', 'Технические cookies');
-      const text = document.createElement('p'); text.textContent = 'Для безопасной работы формы и админ-панели используются технические cookies. Аналитические и рекламные счётчики не подключены.';
-      const link = document.createElement('a'); link.href = '/dokumenty/'; link.textContent = 'Документы';
-      const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Понятно';
-      button.addEventListener('click', () => { localStorage.setItem('ps-cookie-notice', '1'); notice.remove(); });
-      notice.append(text, link, button); document.body.append(notice);
-    }
-  } catch (_) { /* Storage may be disabled by the visitor; never block the page. */ }
+      notice.setAttribute('aria-label', 'Использование cookies');
+      const text = document.createElement('p'); text.append('Сайт собирает и обрабатывает cookies для корректной работы. Просим ваше согласие на их использование. Подробнее — в ');
+      const link = document.createElement('a'); link.href = '/cookies/'; link.textContent = 'условиях использования cookies';
+      const privacy = document.createElement('a'); privacy.href = '/privacy/'; privacy.textContent = 'политике обработки данных';
+      text.append(link, ' и ', privacy, '.');
+      const actions = document.createElement('div'); actions.className = 'cookie-notice-actions';
+      for (const [choice, label] of [['accepted', 'Согласен'], ['necessary', 'Только необходимые']]) {
+        const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
+        button.addEventListener('click', () => {
+          try { localStorage.setItem(cookieChoiceKey, JSON.stringify({ choice, version: cookieVersion, at: Date.now() })); } catch (_) { /* Choice still applies to the current page. */ }
+          // This version has no optional trackers. A choice never grants consent for a form or advertising.
+          notice.remove();
+        });
+        actions.append(button);
+      }
+      notice.append(text, actions); document.body.append(notice);
+  };
+  const settings = document.createElement('button'); settings.className = 'cookie-settings'; settings.type = 'button'; settings.textContent = 'Настройки cookies';
+  settings.addEventListener('click', openCookieChoice); document.querySelector('.footer-bottom')?.append(settings);
+  let cookieChoice;
+  try { cookieChoice = JSON.parse(localStorage.getItem(cookieChoiceKey) || 'null'); } catch (_) { /* Disabled or invalid storage requires a fresh choice. */ }
+  if (!cookieChoice || cookieChoice.version !== cookieVersion || !['accepted', 'necessary'].includes(cookieChoice.choice)
+    || !Number.isFinite(cookieChoice.at) || Date.now() - cookieChoice.at > 183 * 86400000 || cookieChoice.at > Date.now()) {
+    openCookieChoice();
+  }
 })();

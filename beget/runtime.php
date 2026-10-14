@@ -69,9 +69,34 @@ function ps_rate_limit(string $kind, int $max, int $window): bool {
     ftruncate($handle, 0); rewind($handle); fwrite($handle, json_encode($entries)); fflush($handle);
     flock($handle, LOCK_UN); fclose($handle); return $allowed;
 }
+function ps_legal_values(array $content): array {
+    global $manifest;
+    $values = [];
+    foreach ($manifest['legal']['fields'] as $key => $field) $values[$key] = (string)($content['legalFields'][$key] ?? $field['default'] ?? '');
+    return $values;
+}
+function ps_document_data(string $slug, array $content): array {
+    global $manifest;
+    $saved = $content['documents'][$slug] ?? [];
+    // Preserve any owner-supplied legacy text; never replace it silently.
+    if (trim((string)($saved['body'] ?? '')) !== '' && empty($saved['templateVersion'])) return $saved + ['missing' => [], 'legacy' => true];
+    $template = $manifest['legal']['documents'][$slug];
+    $values = ps_legal_values($content); $missing = [];
+    foreach ($template['required'] as $key) if (trim($values[$key]) === '') $missing[$key] = $manifest['legal']['fields'][$key]['label'];
+    $body = preg_replace_callback('/\{\{([a-z_]+)\}\}/', function ($m) use ($values, $manifest) {
+        return trim($values[$m[1]] ?? '') !== '' ? $values[$m[1]] : '[Нужно заполнить: ' . $manifest['legal']['fields'][$m[1]]['label'] . ']';
+    }, $template['body']);
+    $defaultPublished = !empty($template['defaultPublished']) && empty($saved['templateVersion']);
+    $approved = $defaultPublished || (!empty($saved['published']) && hash_equals((string)($saved['approvedHash'] ?? ''), hash('sha256', $body)));
+    return ['title' => $manifest['documents'][$slug]['title'], 'body' => $body, 'published' => $approved && !$missing,
+        'missing' => $missing, 'legacy' => false, 'templateVersion' => $manifest['legal']['version'], 'updatedAt' => $saved['updatedAt'] ?? $manifest['legal']['version']];
+}
 function ps_document_ready(string $slug, array $content): bool {
-    $doc = $content['documents'][$slug] ?? [];
+    $doc = ps_document_data($slug, $content);
     return ($doc['published'] ?? false) === true && trim((string)($doc['body'] ?? '')) !== '';
+}
+function ps_document_revision(string $slug, array $content): string {
+    return hash('sha256', json_encode([$content['documents'][$slug] ?? [], $content['legalFields'] ?? []]));
 }
 function ps_forms_ready(array $content): bool {
     return ps_document_ready('privacy', $content) && ps_document_ready('soglasie-na-obrabotku-dannyh', $content);
@@ -121,14 +146,14 @@ function ps_submit_lead(array $manifest, array $content): never {
     if (!ps_rate_limit('lead', 5, 900)) ps_response(['error' => 'Слишком много заявок. Попробуйте позже или позвоните нам'], 429);
     $consentVersions = [];
     foreach (['privacy', 'soglasie-na-obrabotku-dannyh'] as $slug) {
-        $doc = $content['documents'][$slug];
+        $doc = ps_document_data($slug, $content);
         $consentVersions[$slug] = ['version' => $doc['updatedAt'] ?? '', 'sha256' => hash('sha256', $doc['body'])];
     }
     $lead = ['id' => $id, 'createdAt' => gmdate('c'), 'name' => $name, 'phone' => $phone, 'email' => $email,
         'message' => mb_substr(trim((string)($p['message'] ?? '')), 0, 500), 'specialist' => $specialist,
         'consent' => true, 'consentVersions' => $consentVersions, 'marketingConsent' => !empty($p['marketingConsent']),
         'ipHash' => hash_hmac('sha256', $_SERVER['REMOTE_ADDR'] ?? '', ps_json_read('config')['session_secret']), 'crmStatus' => 'pending'];
-    if ($lead['marketingConsent']) $lead['marketingVersion'] = hash('sha256', $content['documents']['reklamnye-rassylki']['body']);
+    if ($lead['marketingConsent']) $lead['marketingVersion'] = hash('sha256', ps_document_data('reklamnye-rassylki', $content)['body']);
     ps_json_write($leadFile, $lead);
     $profile = $profiles[$specialist];
     $contact = ['name' => $name, 'custom_fields_values' => [['field_code' => 'PHONE', 'values' => [['value' => $phone]]]]];
@@ -191,14 +216,18 @@ try {
     $page = $manifest['pages'][$route];
     $html = (string)file_get_contents(__DIR__ . '/' . $page['file']);
     if (isset($manifest['documents'][$route])) {
-        if (!ps_document_ready($route, $content)) { http_response_code(404); header('X-Robots-Tag: noindex'); echo file_get_contents(__DIR__ . '/404.html'); exit; }
-        $doc = $content['documents'][$route];
-        $html = str_replace('<!--LEGAL_BODY-->', '<div class="legal-document-text">' . ps_escape($doc['body']) . '</div>', $html);
+        $doc = ps_document_data($route, $content); $note = '';
+        if (!ps_document_ready($route, $content)) {
+            header('X-Robots-Tag: noindex, nofollow');
+            $html = preg_replace('/<meta name="robots" content="[^"]*">/', '<meta name="robots" content="noindex,nofollow">', $html);
+            $note = '<aside class="legal-draft-note"><strong>Подготовленный проект документа</strong><p>Текст готов, но до утверждения владельцем не используется как действующее согласие или условия договора.' . ($doc['missing'] ? ' Осталось заполнить: ' . ps_escape(implode('; ', $doc['missing'])) . '.' : '') . '</p></aside>';
+        }
+        $html = str_replace('<!--LEGAL_BODY-->', $note . '<div class="legal-document-text">' . ps_escape($doc['body']) . '</div>', $html);
     }
     if ($route === 'dokumenty') {
         $list = '<section class="legal-documents-list">';
         foreach ($manifest['documents'] as $slug => $doc) {
-            $list .= ps_document_ready($slug, $content) ? '<a href="/' . ps_escape($slug) . '/">' . ps_escape($doc['title']) . '<span>→</span></a>' : '<div><span>' . ps_escape($doc['title']) . '</span><small>Текст готовится к публикации</small></div>';
+            $list .= '<a href="/' . ps_escape($slug) . '/"><span>' . ps_escape($doc['title']) . '<small>' . (ps_document_ready($slug, $content) ? 'Действующий документ' : 'Подготовленный проект · требуется утверждение') . '</small></span><span>→</span></a>';
         }
         $html = str_replace('<!--DOCUMENT_LIST-->', $list . '</section>', $html);
     }

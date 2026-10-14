@@ -35,14 +35,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             elseif ($action === 'document') {
                 $slug = (string)($_POST['slug'] ?? '');
                 if (!isset($manifest['documents'][$slug])) throw new RuntimeException('Неизвестный документ.');
-                $body = trim((string)($_POST['body'] ?? '')); $published = isset($_POST['published']);
-                if (strlen($body) > 500000) throw new RuntimeException('Документ слишком большой.');
-                if ($published && $body === '') throw new RuntimeException('Пустой документ нельзя опубликовать.');
                 $content = ps_json_read('content', ['documents' => [], 'seo' => [], 'resourceTestUrl' => '']);
-                $revision = hash('sha256', json_encode($content['documents'][$slug] ?? []));
+                $revision = ps_document_revision($slug, $content);
                 if (!hash_equals((string)$revision, (string)($_POST['revision'] ?? ''))) throw new RuntimeException('Документ уже изменён. Обновите страницу, чтобы не перезаписать чужую правку.');
-                $content['documents'][$slug] = ['title' => $manifest['documents'][$slug]['title'], 'body' => $body, 'published' => $published, 'updatedAt' => gmdate('c')];
+                $doc = ps_document_data($slug, $content); $published = isset($_POST['published']);
+                if ($published && $doc['missing']) throw new RuntimeException('Сначала заполните: ' . implode('; ', $doc['missing']) . '.');
+                $content['documents'][$slug] = ['title' => $manifest['documents'][$slug]['title'], 'body' => $doc['body'], 'published' => $published, 'updatedAt' => gmdate('c')];
+                if (!$doc['legacy']) $content['documents'][$slug] += ['templateVersion' => $manifest['legal']['version'], 'approvedHash' => $published ? hash('sha256', $doc['body']) : ''];
                 ps_json_write('content', $content); $message = $published ? 'Документ опубликован.' : 'Черновик сохранён.';
+            } elseif ($action === 'legal_fields') {
+                $content = ps_json_read('content', ['documents' => [], 'seo' => [], 'resourceTestUrl' => '']);
+                if (!hash_equals(hash('sha256', json_encode($content['legalFields'] ?? [])), (string)($_POST['revision'] ?? ''))) throw new RuntimeException('Реквизиты уже изменены. Обновите страницу.');
+                $values = [];
+                foreach ($manifest['legal']['fields'] as $key => $field) {
+                    $value = trim((string)($_POST['fields'][$key] ?? ''));
+                    if (mb_strlen($value) > 8000 || str_contains($value, '{{') || str_contains($value, '[Нужно заполнить:')) throw new RuntimeException('Проверьте поле: ' . $field['label']);
+                    if ($value !== '' && $field['type'] === 'email' && !filter_var($value, FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Проверьте email для обращений.');
+                    if ($value !== '' && $field['type'] === 'inn' && !preg_match('/^(\d{10}|\d{12})$/', $value)) throw new RuntimeException('ИНН должен содержать 10 или 12 цифр.');
+                    $values[$key] = $value;
+                }
+                $content['legalFields'] = $values;
+                ps_json_write('content', $content); $message = 'Реквизиты сохранены и подставлены во все проекты. Изменённые опубликованные шаблоны нужно проверить и утвердить повторно.';
             } elseif ($action === 'seo') {
                 $slug = (string)($_POST['slug'] ?? '');
                 if (!isset($manifest['pages'][$slug]) || empty($manifest['pages'][$slug]['indexable'])) throw new RuntimeException('Неизвестная страница.');
@@ -87,9 +100,11 @@ function ps_admin_csrf(): void { echo '<input type="hidden" name="csrf" value="'
 <?php else: ?>
 <nav class="cms-tabs"><a href="/admin/" <?= $tab === 'documents' ? 'aria-current="page"' : '' ?>>Документы</a><a href="/admin/?tab=seo" <?= $tab === 'seo' ? 'aria-current="page"' : '' ?>>SEO</a><a href="/admin/?tab=settings" <?= $tab === 'settings' ? 'aria-current="page"' : '' ?>>Тест и amoCRM</a><a href="/admin/?tab=leads" <?= $tab === 'leads' ? 'aria-current="page"' : '' ?>>Заявки сайта</a><form method="post" action="/admin/"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="logout"><button type="submit">Выйти</button></form></nav>
 <?php if ($tab === 'documents'): ?>
-<section class="cms-panel"><h2>Документы и согласия</h2><p>Заполните согласованный текст каждого документа. Включайте публикацию только после проверки. Политика и отдельное согласие обязательны для включения формы записи; рекламное согласие остаётся необязательным.</p>
-<?php foreach ($manifest['documents'] as $slug => $definition): $doc = $content['documents'][$slug] ?? []; ?>
-<details class="cms-document"><summary><?= ps_escape($definition['title']) ?><span><?= ps_document_ready($slug, $content) ? 'Опубликован' : 'Черновик' ?></span></summary><form method="post" action="/admin/"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="document"><input type="hidden" name="slug" value="<?= ps_escape($slug) ?>"><input type="hidden" name="revision" value="<?= ps_escape(hash('sha256', json_encode($doc))) ?>"><label>Текст документа<textarea name="body" rows="15" maxlength="500000"><?= ps_escape($doc['body'] ?? '') ?></textarea></label><label class="cms-check"><input type="checkbox" name="published" <?= !empty($doc['published']) ? 'checked' : '' ?>> Текст согласован — опубликовать на сайте</label><p class="cms-note">Адрес после публикации: /<?= ps_escape($slug) ?>/ · Сохранение черновика не даёт согласия за посетителей.</p><button class="button" type="submit">Сохранить документ</button></form></details>
+<section class="cms-panel"><h2>Готовые тексты документов</h2><p>Семь документов уже подготовлены. Здесь заполняются только неизвестные реквизиты и условия, а не весь текст. Общие сведения автоматически подставляются во все документы. Проекты доступны для ознакомления, но до заполнения и утверждения не используются как действующие согласия. Формы включатся после утверждения политики и отдельного согласия.</p>
+<details class="cms-document" open><summary>Реквизиты и недостающие условия</summary><form method="post" action="/admin/"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="legal_fields"><input type="hidden" name="revision" value="<?= ps_escape(hash('sha256', json_encode($content['legalFields'] ?? []))) ?>"><div class="cms-legal-fields">
+<?php $legalValues = ps_legal_values($content); foreach ($manifest['legal']['fields'] as $key => $field): ?><label><?= ps_escape($field['label']) ?><?php if ($field['type'] === 'textarea'): ?><textarea name="fields[<?= ps_escape($key) ?>]" rows="3" maxlength="8000"><?= ps_escape($legalValues[$key]) ?></textarea><?php else: ?><input name="fields[<?= ps_escape($key) ?>]" type="<?= $field['type'] === 'email' ? 'email' : 'text' ?>" value="<?= ps_escape($legalValues[$key]) ?>" maxlength="8000"><?php endif; ?><small><?= ps_escape($field['hint']) ?></small></label><?php endforeach; ?></div><button class="button" type="submit">Сохранить реквизиты и условия</button></form></details>
+<?php foreach ($manifest['documents'] as $slug => $definition): $doc = ps_document_data($slug, $content); ?>
+<details class="cms-document"><summary><?= ps_escape($definition['title']) ?><span><?= ps_document_ready($slug, $content) ? 'Действующий документ' : 'Подготовлен · требуется утверждение' ?></span></summary><?php if ($doc['missing']): ?><p class="cms-missing">Осталось заполнить: <?= ps_escape(implode('; ', $doc['missing'])) ?>.</p><?php endif; ?><div class="cms-legal-preview"><?= ps_escape($doc['body']) ?></div><form method="post" action="/admin/"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="document"><input type="hidden" name="slug" value="<?= ps_escape($slug) ?>"><input type="hidden" name="revision" value="<?= ps_escape(ps_document_revision($slug, $content)) ?>"><label class="cms-check"><input type="checkbox" name="published" <?= ps_document_ready($slug, $content) ? 'checked' : '' ?>> Текст и заполненные сведения проверены владельцем — утвердить</label><p class="cms-note">Адрес: <a href="/<?= ps_escape($slug) ?>/" target="_blank">/<?= ps_escape($slug) ?>/</a>. Утверждение текста не предоставляет согласия за посетителей.</p><button class="button" type="submit">Сохранить статус документа</button></form></details>
 <?php endforeach; ?></section>
 <?php elseif ($tab === 'seo'): ?>
 <section class="cms-panel"><h2>SEO-поля страниц</h2><p>Title и Description редактируются отдельно. Канонические адреса и карта сайта обновляются автоматически.</p>

@@ -35,6 +35,7 @@ async function loadProjectData(path) {
   return import(`data:text/javascript;base64,${Buffer.from(compiled.outputText).toString("base64")}`);
 }
 const { defaultContent, legalDocumentDefinitions, seoDefinitions } = await loadProjectData("lib/content.ts");
+const legalTemplates = JSON.parse(await readFile(join(root, "beget/legal-templates.json"), "utf8"));
 const { specialistProfiles } = await loadProjectData("lib/specialists.ts");
 const founderData = await loadProjectData("lib/founder.ts");
 const siteCopy = await loadProjectData("lib/site-copy.ts");
@@ -81,9 +82,7 @@ function layout(title, body, description = "Психологический це�
     .replace(/<a\b[^>]*href="https:\/\/max\.ru\/"[^>]*>[\s\S]*?<\/a>/g, "")
     .replaceAll('images/centre-team-real.jpg', 'images/centre-team-20261013.webp')
     .replaceAll('alt="Команда психологического центра"', 'alt="Участники встречи центра «Путь к себе» во Владивостоке"')
-    .replace(/<a class="button button-light" href="[^"]*">Тест на ресурсность →<\/a>/g, `<a class="button button-light" data-resource-test-link href="${link("test-na-resursnost")}">Тест на ресурсность →</a>`)
-    .replaceAll(`href="${link("privacy")}"`, `href="${link("dokumenty")}"`)
-    .replaceAll(`href="${link("offer")}"`, `href="${link("dokumenty")}"`);
+    .replace(/<a class="button button-light" href="[^"]*">Тест на ресурсность →<\/a>/g, `<a class="button button-light" data-resource-test-link href="${link("test-na-resursnost")}">Тест на ресурсность →</a>`);
   const seo = seoDefinitions.find((item) => item.slug === slug);
   title = seo?.title || `${title} — Путь к себе`;
   description = seo?.description || description;
@@ -166,12 +165,10 @@ const pages = [
   interior({slug:"obrazovanie", eyebrow:"Опыт и метод", title:"Образование и научная работа", lead:"Системная психология, семейная терапия и авторский метод формирования ресурсных систем личности.", image:"alena-portrait-1.jpg", content:editorial.education + editorial.science}),
   interior({slug:"test-na-resursnost", eyebrow:"Авторский тест Алёны Савиновой", title:"Тест на ресурсность", lead:"Поймите, на что вы опираетесь сейчас и каким сферам жизни нужно больше внимания.", image:"founder-speaking.jpeg", content:editorial.test}),
   interior({slug:"contacts", eyebrow:"Владивосток", title:"Контакты", lead:"Свяжитесь с нами — поможем сформулировать запрос и подобрать специалиста или формат работы.", image:"event-2.jpg", content:`<section class="contact-page-grid"><div class="contact-details"><span class="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p>${icon("utility-phone")}<a href="tel:+79146658653">+7 914 665-86-53</a></p><p>${icon("utility-location")}<span>Владивосток, ул. Бестужева, 21Б, этаж 2</span></p><p>${icon("utility-send")}<a href="${siteCopy.whatsappUrl}" target="_blank" rel="noreferrer">WhatsApp</a> · <a href="tg://resolve?phone=79146658653">Telegram</a> · <a href="https://max.ru/">MAX</a></p><p class="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div class="demo-disabled"><h2>Индивидуальный подбор специалиста</h2><p>${siteCopy.selectionDescription}</p><p>Онлайн-отправка формы пока недоступна. Свяжитесь с нами напрямую.</p><a class="button" href="${siteCopy.whatsappUrl}" target="_blank" rel="noreferrer">${siteCopy.selectionLabel} →</a></div></section>${socialSection}`}),
-  interior({slug:"privacy", eyebrow:"Документы", title:"Политика конфиденциальности", lead:"Как центр обрабатывает контактные данные.", image:"event-2.jpg", content:`<section class="legal-copy"><h2>Обработка персональных данных</h2><p>Данные из формы используются только для связи по вопросу консультации, мероприятия или программы.</p><p>Статическая демоверсия не собирает и не отправляет данные через формы.</p></section>`}),
-  interior({slug:"offer", eyebrow:"Документы", title:"Договор оферты", lead:"Общие условия записи, оплаты и участия в программах центра.", image:"event-2.jpg", content:`<section class="legal-copy"><h2>Общие условия</h2><p>Запись подтверждается после согласования формата, времени и стоимости с представителем центра.</p></section>`}),
-  interior({slug:"dokumenty", eyebrow:"Документы центра", title:"Документы и условия", lead:"В этом разделе публикуются утверждённые центром документы.", image:"centre-interior.jpg", content:serverForms ? '<!--DOCUMENT_LIST-->' : `<section class="legal-documents-list">${legalDocumentDefinitions.map((doc)=>`<div><span>${esc(doc.title)}</span><small>Текст готовится к публикации</small></div>`).join("")}</section>`}),
-  ...legalDocumentDefinitions.map(doc => interior({slug:doc.slug,eyebrow:"Документы центра",title:doc.title,lead:"Утверждённый текст документа",image:"centre-interior.jpg",content:'<!--LEGAL_BODY-->'})),
+  interior({slug:"dokumenty", eyebrow:"Документы центра", title:"Документы и условия", lead:"Тексты документов подготовлены. Для проектов отдельно указано, что требуется заполнить и утвердить.", image:"centre-interior.jpg", content:serverForms ? '<!--DOCUMENT_LIST-->' : `<section class="legal-documents-list">${legalDocumentDefinitions.map((doc)=>`<a href="${link(doc.slug)}"><span>${esc(doc.title)}<small>Подготовленный проект · демоверсия</small></span><span>→</span></a>`).join("")}</section>`}),
+  ...legalDocumentDefinitions.map(doc => interior({slug:doc.slug,eyebrow:"Документы центра",title:doc.title,lead:"Условия работы центра и обращения с данными.",image:"centre-interior.jpg",content:serverForms ? '<!--LEGAL_BODY-->' : `<aside class="legal-draft-note"><strong>Подготовленный проект документа</strong><p>Для утверждения владелец заполняет реквизиты и условия в основной админке. Демоверсия не принимает согласия и заявки.</p></aside><div class="legal-document-text">${esc(legalTemplates.documents[doc.slug].body.replace(/\{\{([a-z_]+)\}\}/g,(_,key)=>legalTemplates.fields[key].default || `[Нужно заполнить: ${legalTemplates.fields[key].label}]`))}</div>`})),
   ...specialistProfiles.map(specialistPage),
-].filter(([slug]) => slug !== "socialnye-seti" && (serverForms || !legalDocumentDefinitions.some(doc=>doc.slug===slug)));
+].filter(([slug]) => slug !== "socialnye-seti");
 
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
@@ -244,7 +241,7 @@ if (!serverForms) for (const [alias,target] of [["kontakty","contacts"],["o-cent
 }
 await writeFile(join(output, "404.html"), layout("Страница не найдена", `<main>${header()}<section class="legal-copy"><h1>Страница не найдена</h1><p><a class="button" href="${base}">Вернуться на главную</a></p></section>${footer()}</main>`, "Страница не найдена", "404", null, false));
 if (serverForms) {
-  await writeFile(join(output,".site-manifest.json"),JSON.stringify({pages:manifestPages,documents:Object.fromEntries(legalDocumentDefinitions.map(doc=>[doc.slug,doc])),specialists:specialistProfiles.map(({slug,name,format})=>({slug,name,format}))},null,2));
+  await writeFile(join(output,".site-manifest.json"),JSON.stringify({pages:manifestPages,legal:legalTemplates,documents:Object.fromEntries(legalDocumentDefinitions.map(doc=>[doc.slug,doc])),specialists:specialistProfiles.map(({slug,name,format})=>({slug,name,format}))},null,2));
   for (const [src,dest] of [["runtime.php","site-runtime.php"],["admin.php","beget-admin.php"],["admin.css","beget-admin.css"],["site-ui.js","site-ui.js"],["htaccess",".htaccess"],["dev-router.php","dev-router.php"]]) await cp(join(root,"beget",src),join(output,dest));
   await cp(join(root,"public","googlef2660784658c6c2f.html"),join(output,"googlef2660784658c6c2f.html"));
   await cp(join(root,"public","llms.txt"),join(output,".llms-source.txt"));
