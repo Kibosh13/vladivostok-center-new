@@ -11,8 +11,8 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const user = await requireChatGPTUser("/admin");
-  const [specialists, programs, events, reviews] = await Promise.all([
-    getContent("specialist", true), getContent("program", true), getContent("event", true), getContent("review", true),
+  const [specialists, programs, events, reviews, documents, seo] = await Promise.all([
+    getContent("specialist", true), getContent("program", true), getContent("event", true), getContent("review", true), getContent("document", true), getContent("seo", true),
   ]);
   let leads: Array<{ id: number; name: string; phone: string; email: string; message: string; source: string; status: string; createdAt: string }> = [];
   try { leads = await getDb().select().from(leadsTable).orderBy(desc(leadsTable.createdAt)).limit(250); } catch { /* first local run before migration */ }
@@ -22,6 +22,6 @@ export default async function AdminPage() {
       <div><span className="admin-kicker">ПУТЬ К СЕБЕ · CMS</span><h1>Управление сайтом</h1></div>
       <nav><Link href="/"><ArrowLeft /> На сайт</Link><a href="/" target="_blank">Открыть <ExternalLink /></a><span>{user.displayName}</span><a href={chatGPTSignOutPath("/")}>Выйти</a></nav>
     </header>
-    <AdminPanel initialItems={{ specialist: specialists, program: programs, event: events, review: reviews }} initialLeads={leads} />
+    <AdminPanel initialItems={{ specialist: specialists, program: programs, event: events, review: reviews, document: documents, seo }} initialLeads={leads} />
   </main>;
 }

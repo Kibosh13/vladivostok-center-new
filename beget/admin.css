@@ -1,0 +1,28 @@
+.cms-body { background: #f6f1ed; color: #302724; font-family: var(--font-sans, sans-serif); }
+.cms-shell { max-width: 1240px; margin: auto; padding: 24px 32px 80px; }
+.cms-header { display: flex; gap: 30px; align-items: center; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid #ded0c7; }
+.cms-header img { width: 150px; height: auto; }
+.cms-header h1 { font: 400 clamp(30px, 4vw, 46px)/1.1 var(--font-display); margin: 8px 0 0; color: #7d0b24; }
+.cms-tabs { display: flex; flex-wrap: wrap; gap: 14px; padding: 26px 0; align-items: center; }
+.cms-tabs a, .cms-tabs button { padding: 12px 20px; border: 1px solid #ddcdc5; background: #fffdfb; border-radius: 8px; color: #7d0b24; font: inherit; }
+.cms-tabs [aria-current="page"] { background: #7d0b24; color: white; }
+.cms-panel, .cms-login { background: #fffdfb; border: 1px solid #ddcdc5; border-radius: 16px; padding: clamp(24px, 4vw, 48px); }
+.cms-login { max-width: 680px; margin: 60px auto; }
+.cms-panel h2, .cms-login h2 { color: #7d0b24; font: 400 36px/1.15 var(--font-display); margin: 0 0 20px; }
+.cms-panel p, .cms-login p { line-height: 1.65; color: #6b5c56; }
+.cms-panel form, .cms-login form { display: grid; gap: 22px; }
+.cms-panel label, .cms-login label { display: grid; gap: 9px; font-size: 17px; }
+.cms-panel input, .cms-login input, .cms-panel textarea { width: 100%; min-width: 0; padding: 14px 16px; border: 1px solid #d7c5bb; border-radius: 8px; color: #302724; background: #fff; font: inherit; line-height: 1.5; }
+.cms-panel textarea { resize: vertical; }
+.cms-panel .cms-check { display: flex; align-items: center; gap: 12px; }
+.cms-check input { width: 19px; height: 19px; accent-color: #7d0b24; }
+.cms-document { margin-top: 20px; border: 1px solid #e2d5ce; border-radius: 10px; padding: 22px; }
+.cms-document summary { cursor: pointer; color: #7d0b24; font-size: 20px; line-height: 1.5; }
+.cms-document summary span { margin-left: 20px; color: #806e63; font-size: 14px; }
+.cms-document[open] form { margin-top: 24px; }
+.cms-note { font-size: 14px; line-height: 1.6; }
+.cms-message { padding: 22px; margin: 24px 0; color: #7d0b24; background: #eee0d8; border: 1px solid #d9c5ba; border-radius: 10px; }
+.cms-panel .button, .cms-login .button { justify-self: start; cursor: pointer; }
+.cms-panel hr { margin: 36px 0; border: 0; border-top: 1px solid #e2d5ce; }
+.cms-lead { margin-top: 24px; padding: 24px; background: #f9f3ef; border-radius: 10px; }
+@media(max-width:640px) { .cms-shell { padding: 18px 16px 60px; } .cms-header { gap: 16px; flex-wrap: wrap; } .cms-header img { width: 100px; } .cms-header > a:last-child { width: 100%; } .cms-document { padding: 16px; } .cms-document summary span { display: block; margin: 6px 0 0; } }

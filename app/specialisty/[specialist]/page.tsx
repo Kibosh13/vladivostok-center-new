@@ -5,7 +5,10 @@ import { LeadForm } from "@/components/lead-form";
 import { ArrowIcon } from "@/components/premium-icons";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { getSpecialistProfile, specialistProfiles } from "@/lib/specialists";
-import { consultationPrice, selectionDescription } from "@/lib/site-copy";
+import { consultationPrice } from "@/lib/site-copy";
+import { getContent } from "@/lib/content.server";
+import { canonicalUrl, personSchema } from "@/lib/seo";
+import { StructuredData } from "@/components/structured-data";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ specialis
   return profile ? {
     title: `${profile.name} — специалист центра «Путь к себе»`,
     description: `${profile.role}. ${profile.format}. Основные запросы, подход, образование и документы специалиста.`,
+    alternates: { canonical: canonicalUrl(`specialisty/${profile.slug}`) },
   } : {};
 }
 
@@ -26,8 +30,12 @@ export default async function SpecialistPage({ params }: { params: Promise<{ spe
   const { specialist } = await params;
   const profile = getSpecialistProfile(specialist);
   if (!profile) notFound();
+  const documents = await getContent("document");
+  const consentReady = ["privacy", "soglasie-na-obrabotku-dannyh"].every((slug) => documents.some((doc) => doc.slug === slug && doc.body.trim()));
+  const marketingReady = documents.some((doc) => doc.slug === "reklamnye-rassylki" && doc.body.trim());
 
   return <main>
+    <StructuredData value={personSchema(profile.name, `specialisty/${profile.slug}`, profile.role, profile.image)} />
     <SiteHeader />
     <section className="specialist-detail-hero">
       <div className="specialist-detail-photo"><Image src={profile.image} alt={profile.name} fill priority sizes="(max-width: 760px) 100vw, 43vw" /></div>
@@ -37,7 +45,7 @@ export default async function SpecialistPage({ params }: { params: Promise<{ spe
         <p className="specialist-detail-role">{profile.role}</p>
         <div className="specialist-detail-tags"><span>{profile.format}</span><span>{profile.city}</span>{profile.experience && <span>{profile.experience}</span>}</div>
         <p>{profile.intro}</p>
-        <a className="button" href="#consultation">Индивидуальный подбор специалиста <ArrowIcon /></a>
+        <a className="button" href="#booking">Записаться на консультацию <ArrowIcon /></a>
       </div>
     </section>
 
@@ -57,12 +65,12 @@ export default async function SpecialistPage({ params }: { params: Promise<{ spe
         {profile.credentials.length ? <div className="credentials-grid">{profile.credentials.map((src, index) => <a href={src} target="_blank" rel="noreferrer" key={src} aria-label={`Открыть документ ${index + 1}`}><Image src={src} alt={`Документ об образовании ${profile.name}, ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 33vw" /></a>)}</div> : <p className="credentials-pending">Сведения об образовании размещены выше. Сканы дипломов и сертификатов будут добавлены после получения оригиналов от специалиста.</p>}
       </section>
 
-      <section className="specialist-detail-consultation" id="consultation">
-        <div><span className="section-label">Первый шаг</span><h2>Индивидуальный подбор специалиста</h2><p>{selectionDescription}</p>
-          <div className="booking-session"><span>Индивидуальная консультация</span><strong>{consultationPrice}</strong><p>{profile.format}</p><small>Длительность и стоимость встречи согласовываются индивидуально.</small></div>
+      <section className="specialist-booking" id="booking">
+        <div className="specialist-booking-heading"><span className="section-label">Индивидуальная консультация</span><h2>Запись к специалисту</h2>
+          <p className="specialist-price">{consultationPrice} · {profile.format}</p><p>Длительность и стоимость встречи согласовываются индивидуально.</p>
           <Link href="/specialisty">Вернуться ко всем специалистам <ArrowIcon /></Link>
         </div>
-        <LeadForm source={`specialist-${profile.slug}`} specialistName={profile.name} />
+        <LeadForm source={`specialist-${profile.slug}`} specialistName={profile.name} consentReady={consentReady} marketingReady={marketingReady} />
       </section>
     </div>
     <SiteFooter />

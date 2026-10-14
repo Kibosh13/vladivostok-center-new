@@ -4,11 +4,15 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import ts from "typescript";
 import { editorialHtml } from "./editorial-html.mjs";
+import { bookingHtml } from "./booking-html.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outArg = process.argv.indexOf("--out");
 const output = resolve(root, outArg >= 0 ? process.argv[outArg + 1] : ".pages-demo");
-const base = (process.env.GITHUB_PAGES_BASE || "/vladivostok-center-new/").replace(/\/?$/, "/");
+if (![join(root,".pages-demo"),join(root,".beget-build")].includes(output)) throw new Error("Build output must be an isolated .pages-demo or .beget-build directory.");
+const serverForms = process.env.SITE_TARGET === "beget";
+const base = (serverForms ? "/" : process.env.GITHUB_PAGES_BASE || "/vladivostok-center-new/").replace(/\/?$/, "/");
+const origin = "https://putksebevladivostok.ru";
 const assetVersion = createHash("sha256")
   .update(await readFile(join(root, "app/globals.css")))
   .update(await readFile(join(root, "scripts/editorial-html.mjs")))
@@ -19,7 +23,7 @@ const assetVersion = createHash("sha256")
 
 const nav = [
   ["osnovatel", "О центре"], ["specialisty", "Специалисты"], ["uslugi", "Программы"],
-  ["meropriyatiya", "Мероприятия"], ["otzyvy", "Отзывы"], ["contacts", "Контакты"], ["socialnye-seti", "Социальные сети"],
+  ["meropriyatiya", "Мероприятия"], ["otzyvy", "Отзывы"], ["contacts", "Контакты и соцсети"],
 ];
 
 const featuredProgramTitles = ["Состояние собственника", "Отношения и деньги", "Семья команда бизнес"];
@@ -30,7 +34,7 @@ async function loadProjectData(path) {
   const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } });
   return import(`data:text/javascript;base64,${Buffer.from(compiled.outputText).toString("base64")}`);
 }
-const { defaultContent } = await loadProjectData("lib/content.ts");
+const { defaultContent, legalDocumentDefinitions, seoDefinitions } = await loadProjectData("lib/content.ts");
 const { specialistProfiles } = await loadProjectData("lib/specialists.ts");
 const founderData = await loadProjectData("lib/founder.ts");
 const siteCopy = await loadProjectData("lib/site-copy.ts");
@@ -56,8 +60,8 @@ const editorial = editorialHtml({ base, link, esc, founder: founderData, copy: s
 function header() {
   return `<header class="site-header">
     <div class="header-brand-group"><a class="brand" href="${base}" aria-label="Путь к себе — главная"><img class="brand-logo" src="${base}images/brand/logo-put-k-sebe.png" alt="Международный тренинговый центр «Путь к себе»" width="1280" height="688"></a><span class="header-city">Владивосток</span></div>
-    <nav class="main-nav" aria-label="Основная навигация">${nav.filter(([slug]) => slug !== "contacts").map(([slug, title]) => `<a href="${link(slug)}">${title}</a>`).join("")}</nav>
-    <a class="button button-small" href="${link("contacts")}">Индивидуальный подбор специалиста →</a>
+    <nav class="main-nav" aria-label="Основная навигация">${nav.map(([slug, title]) => `<a href="${link(slug)}">${title}</a>`).join("")}</nav>
+    <a class="button button-small" href="${link("specialisty")}">Индивидуальный подбор специалиста →</a>
     <button class="demo-menu" type="button" aria-label="Открыть меню" aria-expanded="false">☰</button>
   </header>`;
 }
@@ -70,11 +74,25 @@ function footer() {
   </div><div class="footer-bottom"><span>© 2026 Путь к себе. Все права защищены.</span><a href="${link("privacy")}">Политика конфиденциальности</a><a href="${link("offer")}">Договор оферты</a></div></footer><nav class="floating-messengers" aria-label="Связаться в мессенджере"><a class="messenger-whatsapp" href="${siteCopy.whatsappUrl}" target="_blank" rel="noreferrer" aria-label="Написать в WhatsApp"><img src="${base}images/social/whatsapp.svg" alt=""></a><a class="messenger-telegram" href="tg://resolve?phone=79146658653" aria-label="Написать в Telegram"><img src="${base}images/social/telegram.svg" alt=""></a><a class="messenger-max" href="https://max.ru/" aria-label="Открыть MAX"><img src="${base}images/social/max.png" alt=""></a></nav>`;
 }
 
-function layout(title, body, description = "Психологический центр для предпринимателей и их семей во Владивостоке.") {
+const pageMetadata = {};
+const organization = {"@context":"https://schema.org","@type":["Organization","LocalBusiness"],"@id":`${origin}/#organization`,name:"Путь к себе · Владивосток",url:`${origin}/`,telephone:"+79146658653",address:{"@type":"PostalAddress",streetAddress:"ул. Бестужева, 21Б, этаж 2",addressLocality:"Владивосток",addressCountry:"RU"},sameAs:["https://t.me/centre_pathtoyourself","https://vk.ru/putkseberu"]};
+function layout(title, body, description = "Психологический центр для предпринимателей и их семей во Владивостоке.", slug = "", schema = null, indexable = true) {
+  body = body.replace(/<a([^>]*)href="[^"]*"([^>]*)>Индивидуальный подбор специалиста →<\/a>/g, `<a$1href="${link("specialisty")}"$2>Индивидуальный подбор специалиста →</a>`)
+    .replace(/<a\b[^>]*href="https:\/\/max\.ru\/"[^>]*>[\s\S]*?<\/a>/g, "")
+    .replaceAll('images/centre-team-real.jpg', 'images/centre-team-20261013.webp')
+    .replaceAll('alt="Команда психологического центра"', 'alt="Участники встречи центра «Путь к себе» во Владивостоке"')
+    .replace(/<a class="button button-light" href="[^"]*">Тест на ресурсность →<\/a>/g, `<a class="button button-light" data-resource-test-link href="${link("test-na-resursnost")}">Тест на ресурсность →</a>`)
+    .replaceAll(`href="${link("privacy")}"`, `href="${link("dokumenty")}"`)
+    .replaceAll(`href="${link("offer")}"`, `href="${link("dokumenty")}"`);
+  const seo = seoDefinitions.find((item) => item.slug === slug);
+  title = seo?.title || `${title} — Путь к себе`;
+  description = seo?.description || description;
+  pageMetadata[slug] = {title, description, indexable};
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex"><meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
-  <meta name="description" content="${esc(description)}"><title>${esc(title)} — Путь к себе</title>
-  <link rel="icon" href="${base}favicon.svg"><link rel="stylesheet" href="${base}site.css?v=${assetVersion}"><script defer src="${base}demo.js?v=${assetVersion}"></script></head><body>${body}</body></html>`;
+  ${!serverForms || !indexable ? '<meta name="robots" content="noindex,nofollow,noarchive"><meta name="googlebot" content="noindex,nofollow,noarchive">' : '<meta name="robots" content="index,follow">'}
+  <meta name="description" content="${esc(description)}"><title>${esc(title)}</title><link rel="canonical" href="${origin}/${slug ? `${slug}/` : ""}">
+  ${schema ? `<script type="application/ld+json">${JSON.stringify(schema).replaceAll("<", "\\u003c")}</script>` : ""}
+  <link rel="icon" href="${base}favicon.svg"><link rel="stylesheet" href="${base}site.css?v=${assetVersion}"><script defer src="${base}demo.js?v=${assetVersion}"></script>${serverForms ? `<script defer src="${base}site-ui.js?v=${assetVersion}"></script>` : ""}</head><body data-site-target="${serverForms ? "beget" : "demo"}">${body}</body></html>`;
 }
 
 const icon = (name, className = "") => `<span class="generated-icon ${className}" aria-hidden="true"><img src="${base}images/icons/generated/${name}.png" alt="" width="512" height="512"></span>`;
@@ -101,7 +119,7 @@ function home() {
     <section class="founder-spotlight section-shell"><div class="founder-spotlight-card"><div class="founder-spotlight-photo"><img src="${base}images/founder-speaking.jpeg" alt="Алёна Савинова"></div><div class="founder-spotlight-copy"><span class="eyebrow">Основатель центра · автор научного метода</span><h2>Алёна Савинова</h2><p>Бизнес-наставник с опытом 25 лет, системный семейный психолог и автор метода формирования ресурсных систем личности.</p><div class="founder-spotlight-facts"><a href="${link("osnovatel")}#education">Образование</a><a href="${link("osnovatel")}#science">Научный подход</a><a href="${link("osnovatel")}#reviews">Рецензии</a><a href="${link("osnovatel")}#book">Книга «Жить ресурсно»</a></div><a class="button" href="${link("osnovatel")}">Познакомиться подробнее →</a></div></div></section>
     <section class="reviews-section section-shell"><div class="section-label">Истории<br>клиентов</div><div class="reviews-layout"><div class="reviews-photo"><img src="${base}images/founder-speaking.jpeg" alt="Алёна Савинова"></div><blockquote class="featured-review">«Понимаю, что настоящая эффективность начинается с устойчивого состояния»<footer>Алёна Савинова<br><span>Основатель центра «Путь к себе»</span></footer></blockquote><div class="review-stack">${reviews.slice(0,2).map(([t,s,p]) => `<blockquote>“ ${p}<footer>${t}, ${s}</footer></blockquote>`).join("")}</div></div></section>
     <section class="consultation-section"><div><h2>Перестань выбирать между бизнесом и семьёй</h2><p>Укрепи себя, сохрани близость и создай условия для роста дохода.</p></div><a class="button button-light" href="${link("contacts")}">Индивидуальный подбор специалиста →</a></section>${footer()}</main>`;
-  return layout("Психологический центр во Владивостоке", body);
+  return layout("Психологический центр во Владивостоке", body, undefined, "", organization);
 }
 
 function cards(items, kind) {
@@ -115,8 +133,13 @@ const archiveEntry = `<section class="events-archive-entry"><div><span class="se
 const archiveContent = `<section class="event-archive-grid">${archivedEvents.map(([title, subtitle, text, image]) => `<article><div class="event-archive-image"><img src="${base}images/${image}" alt="${esc(title)}"></div><div><span class="section-label">Прошедшее мероприятие</span><h2>${title}</h2><p class="card-subtitle">${subtitle}</p><p>${text}</p><span class="media-coming">Фото и видео будут добавлены</span></div></article>`).join("")}</section>`;
 
 function interior({ slug, eyebrow, title, lead, image, content }) {
-  const body = `<main>${header()}<section class="interior-hero"><div><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${lead}</p><a class="button" href="${slug === "test-na-resursnost" ? "#take-test" : link("contacts")}">${slug === "test-na-resursnost" ? "Пройти тест" : siteCopy.selectionLabel} →</a></div><div class="interior-hero-image"><img src="${base}images/${image}" alt=""></div></section><div class="interior-body">${content}${slug === "test-na-resursnost" ? "" : `<section class="interior-consultation" id="consultation"><div><span class="section-label">Первый шаг</span><h2>${siteCopy.selectionLabel}</h2><p>${siteCopy.selectionDescription}</p><p class="form-note">Онлайн-отправка формы пока недоступна. Для записи используйте WhatsApp или телефон.</p></div><a class="button" href="${siteCopy.whatsappUrl}" target="_blank" rel="noreferrer">${siteCopy.selectionLabel} →</a></section>`}</div>${footer()}</main>`;
-  return [slug, layout(title, body, lead)];
+  if (slug === "contacts") {
+    title = "Контакты и социальные сети";
+    content = `<section class="contact-page-grid"><div class="contact-details"><span class="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p>${icon("utility-phone")}<a href="tel:+79146658653">+7 914 665-86-53</a></p><p>${icon("utility-location")}<span>Владивосток, ул. Бестужева, 21Б, этаж 2</span></p><p>${icon("utility-send")}<a href="${siteCopy.whatsappUrl}" target="_blank" rel="noreferrer">WhatsApp</a> · <a href="tg://resolve?phone=79146658653">Telegram</a></p><p class="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div class="selection-coffee-card"><h2>${siteCopy.selectionLabel}</h2><p>${siteCopy.selectionDescription}</p><a class="button" href="${link("specialisty")}">Посмотреть специалистов →</a></div></section>${socialSection}`;
+  }
+  const body = `<main>${header()}<section class="interior-hero"><div><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${lead}</p>${slug === "test-na-resursnost" ? '<!--TEST_ACTION-->' : `<a class="button" href="${link("specialisty")}">${siteCopy.selectionLabel} →</a>`}</div><div class="interior-hero-image"><img src="${base}images/${image}" alt=""></div></section><div class="interior-body">${content}</div>${footer()}</main>`;
+  const schema = slug === "osnovatel" ? {"@context":"https://schema.org","@type":"Person",name:"Алёна Савинова",url:`${origin}/osnovatel/`,jobTitle:"Основатель центра «Путь к себе»",worksFor:{"@id":`${origin}/#organization`,"@type":"Organization",name:"Путь к себе"}} : slug === "uslugi" ? {"@context":"https://schema.org","@graph":programs.map(([name,,description,,id])=>({"@type":"Service",name,description,url:`${origin}/uslugi/#${id}`,provider:{"@id":`${origin}/#organization`,"@type":"Organization",name:"Путь к себе"}}))} : slug === "specialisty" ? {"@context":"https://schema.org","@graph":specialistProfiles.map(profile=>({"@type":"Person",name:profile.name,jobTitle:profile.role,url:`${origin}/specialisty/${profile.slug}/`,image:`${origin}${profile.image}`,worksFor:{"@id":`${origin}/#organization`,"@type":"Organization",name:"Путь к себе"}}))} : null;
+  return [slug, layout(title, body, lead, slug, schema)];
 }
 
 function specialistPage(profile) {
@@ -126,7 +149,9 @@ function specialistPage(profile) {
     ? `<div class="credentials-grid">${profile.credentials.map((path, index) => { const src = `${base}${path.replace(/^\//, "")}`; return `<a href="${src}" target="_blank" rel="noreferrer" aria-label="Открыть документ ${index + 1}"><img src="${src}" alt="Документ об образовании ${esc(profile.name)}, ${index + 1}"></a>`; }).join("")}</div>`
     : `<p class="credentials-pending">Сведения об образовании размещены выше. Сканы дипломов и сертификатов будут добавлены после получения оригиналов от специалиста.</p>`;
   const body = `<main>${header()}<section class="specialist-detail-hero"><div class="specialist-detail-photo"><img src="${base}${profile.image.replace(/^\//, "")}" alt="${esc(profile.name)}"></div><div class="specialist-detail-intro"><span class="eyebrow">Специалист центра</span><h1>${esc(profile.name)}</h1><p class="specialist-detail-role">${esc(profile.role)}</p><div class="specialist-detail-tags"><span>${esc(profile.format)}</span><span>${esc(profile.city)}</span>${profile.experience ? `<span>${esc(profile.experience)}</span>` : ""}</div><p>${esc(profile.intro)}</p><a class="button" href="#consultation">Индивидуальный подбор специалиста →</a></div></section><div class="specialist-detail-body"><section class="specialist-detail-columns"><div><span class="section-label">Основные запросы</span><h2>С чем можно обратиться</h2>${list(profile.requests)}</div><div><span class="section-label">Подход</span><h2>Как строится работа</h2>${list(profile.approach)}</div></section><section class="specialist-education"><div><span class="section-label">Подготовка</span><h2>Образование и квалификация</h2></div><ol>${education}</ol></section><section class="credentials-section"><div class="credentials-heading"><div><span class="section-label">Документы специалиста</span><h2>Дипломы и сертификаты</h2></div><p>Нажмите на документ, чтобы открыть его в полном размере.</p></div>${credentials}</section><section class="specialist-detail-consultation" id="consultation"><div><span class="section-label">Первый шаг</span><h2>Индивидуальный подбор специалиста</h2><p>${siteCopy.selectionDescription}</p><div class="booking-session"><span>Индивидуальная консультация</span><strong>${siteCopy.consultationPrice}</strong><p>${esc(profile.format)}</p><small>Длительность и стоимость встречи согласовываются индивидуально.</small></div><a href="${link("specialisty")}">Вернуться ко всем специалистам →</a></div><div class="booking-preview"><div class="booking-form-heading"><span class="section-label">Запись к специалисту</span><h3>${esc(profile.name)}</h3><p>Вы можете записаться к выбранному специалисту напрямую или попросить помочь с подбором.</p></div><p>Вы выбрали специалиста: ${esc(profile.name)}. Напишите нам — согласуем удобное время встречи.</p><a class="button" href="${esc(siteCopy.whatsappRequest(`Здравствуйте! Хочу записаться к специалисту: ${profile.name}.`))}" target="_blank" rel="noreferrer">Индивидуальный подбор специалиста →</a><p class="form-note">Онлайн-отправка формы пока недоступна. Запись доступна через WhatsApp или по телефону <a href="tel:+79146658653">+7 914 665-86-53</a>.</p></div></section></div>${footer()}</main>`;
-  return [`specialisty/${profile.slug}`, layout(profile.name, body, `${profile.role}. ${profile.format}.` )];
+  const updatedBody = body.replace('<a class="button" href="#consultation">Индивидуальный подбор специалиста →</a>', '<a class="button" href="#booking">Записаться на консультацию →</a>')
+    .replace(/<section class="specialist-detail-consultation"[\s\S]*?<\/section>/, bookingHtml({base,profile,esc,serverForms}));
+  return [`specialisty/${profile.slug}`, layout(profile.name, updatedBody, `${profile.role}. ${profile.format}.`, `specialisty/${profile.slug}`, {"@context":"https://schema.org","@type":"Person",name:profile.name,jobTitle:profile.role,url:`${origin}/specialisty/${profile.slug}/`,image:`${origin}${profile.image}`,worksFor:{"@id":`${origin}/#organization`}})];
 }
 
 const pages = [
@@ -143,8 +168,10 @@ const pages = [
   interior({slug:"contacts", eyebrow:"Владивосток", title:"Контакты", lead:"Свяжитесь с нами — поможем сформулировать запрос и подобрать специалиста или формат работы.", image:"event-2.jpg", content:`<section class="contact-page-grid"><div class="contact-details"><span class="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p>${icon("utility-phone")}<a href="tel:+79146658653">+7 914 665-86-53</a></p><p>${icon("utility-location")}<span>Владивосток, ул. Бестужева, 21Б, этаж 2</span></p><p>${icon("utility-send")}<a href="${siteCopy.whatsappUrl}" target="_blank" rel="noreferrer">WhatsApp</a> · <a href="tg://resolve?phone=79146658653">Telegram</a> · <a href="https://max.ru/">MAX</a></p><p class="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div class="demo-disabled"><h2>Индивидуальный подбор специалиста</h2><p>${siteCopy.selectionDescription}</p><p>Онлайн-отправка формы пока недоступна. Свяжитесь с нами напрямую.</p><a class="button" href="${siteCopy.whatsappUrl}" target="_blank" rel="noreferrer">${siteCopy.selectionLabel} →</a></div></section>${socialSection}`}),
   interior({slug:"privacy", eyebrow:"Документы", title:"Политика конфиденциальности", lead:"Как центр обрабатывает контактные данные.", image:"event-2.jpg", content:`<section class="legal-copy"><h2>Обработка персональных данных</h2><p>Данные из формы используются только для связи по вопросу консультации, мероприятия или программы.</p><p>Статическая демоверсия не собирает и не отправляет данные через формы.</p></section>`}),
   interior({slug:"offer", eyebrow:"Документы", title:"Договор оферты", lead:"Общие условия записи, оплаты и участия в программах центра.", image:"event-2.jpg", content:`<section class="legal-copy"><h2>Общие условия</h2><p>Запись подтверждается после согласования формата, времени и стоимости с представителем центра.</p></section>`}),
+  interior({slug:"dokumenty", eyebrow:"Документы центра", title:"Документы и условия", lead:"В этом разделе публикуются утверждённые центром документы.", image:"centre-interior.jpg", content:serverForms ? '<!--DOCUMENT_LIST-->' : `<section class="legal-documents-list">${legalDocumentDefinitions.map((doc)=>`<div><span>${esc(doc.title)}</span><small>Текст готовится к публикации</small></div>`).join("")}</section>`}),
+  ...legalDocumentDefinitions.map(doc => interior({slug:doc.slug,eyebrow:"Документы центра",title:doc.title,lead:"Утверждённый текст документа",image:"centre-interior.jpg",content:'<!--LEGAL_BODY-->'})),
   ...specialistProfiles.map(specialistPage),
-];
+].filter(([slug]) => slug !== "socialnye-seti" && (serverForms || !legalDocumentDefinitions.some(doc=>doc.slug===slug)));
 
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
@@ -156,17 +183,71 @@ css = css.replace(/^@import[^;]+;\s*$/gm, "").replaceAll("url('/images/", `url('
 css += `\n.hero-photo>img,.program-image>img,.specialist-photo>img,.reviews-photo>img,.interior-hero-image>img,.interior-card-image>img,.founder-spotlight-photo>img,.specialist-detail-photo>img,.credentials-grid img{position:absolute;inset:0;width:100%;height:100%}.income-flow>b{font-weight:400;color:#9b7d84}.demo-menu{display:none;background:none;border:0;color:#7d0b24;font-size:25px}.demo-disabled{padding:35px;border:1px solid #ded5cf;border-radius:12px;background:#fffdfb;color:#2e2220}@media(max-width:1380px){.demo-menu{display:block}.site-header>.button{display:none}.site-header .main-nav.open,.home-reference .site-header .main-nav.open{display:flex;position:absolute;left:20px;right:20px;top:72px;padding:20px;flex-direction:column;background:#fff;box-shadow:0 15px 40px rgba(0,0,0,.12)}}`;
 await writeFile(join(output, "site.css"), css);
 await writeFile(join(output, "demo.js"), `const b=document.querySelector('.demo-menu');const n=document.querySelector('.main-nav');if(b&&n)b.addEventListener('click',()=>{const o=n.classList.toggle('open');b.setAttribute('aria-expanded',String(o));});const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const reveal='.resource-test-teaser,.resource-result,.resource-test-next,.education-list,.science-block,.book-block,.path-strip,.pain-section,.results-section,.programs-section,.income-section,.specialists-section,.founder-spotlight,.reviews-section,.consultation-section,.interior-hero,.interior-grid,.editorial-split,.contact-page-grid,.legal-copy,.interior-consultation,.specialist-detail-hero,.specialist-detail-columns,.specialist-education,.credentials-section,.specialist-detail-consultation';const sequence='.path-grid,.pain-grid,.results-grid,.program-grid,.income-flow,.specialist-grid,.reviews-layout,.interior-grid,.contact-details,.credentials-grid';const rs=[...document.querySelectorAll(reveal)];const ss=[...document.querySelectorAll(sequence)];rs.forEach(e=>e.classList.add('motion-reveal'));ss.forEach(e=>e.classList.add('motion-sequence'));document.documentElement.classList.add('motion-ready');const show=e=>e.classList.add('is-visible');if(reduce||!('IntersectionObserver'in window)){rs.forEach(show);ss.forEach(show)}else{const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){show(e.target);io.unobserve(e.target)}}),{rootMargin:'0px 0px -9% 0px',threshold:.08});[...rs,...ss].forEach(e=>io.observe(e))}`);
-await writeFile(join(output, "robots.txt"), "User-agent: *\nDisallow: /\n");
+if (!serverForms) await writeFile(join(output, "robots.txt"), "User-agent: *\nDisallow: /\n");
 await writeFile(join(output, ".nojekyll"), "");
 
-for (const [slug, html] of pages) {
+const manifestPages = {};
+const sharp = (await import("sharp")).default;
+const dimensions = new Map();
+const optimizedImages = new Map();
+await mkdir(join(output,"images/optimized"),{recursive:true});
+for (const [slug, originalHtml] of pages) {
   const dir = slug === "index" ? output : join(output, slug);
   await mkdir(dir, { recursive: true });
+  let html = originalHtml;
+  for (const match of originalHtml.matchAll(/<img\b[^>]*src="([^"]+)"[^>]*>/g)) {
+    const src = match[1];
+    if (!src.startsWith(`${base}images/`)) continue;
+    const imagePath = join(root, "public", src.slice(base.length));
+    if (!dimensions.has(src)) { try { dimensions.set(src,await sharp(imagePath).metadata()); } catch { dimensions.set(src,{}); } }
+    const size = dimensions.get(src);
+    let tag = match[0];
+    if (!tag.includes(' width=') && size.width && size.height) tag = tag.replace(/>$/, ` width="${size.width}" height="${size.height}">`);
+    const heroContext = originalHtml.slice(Math.max(0, match.index - 100), match.index);
+    const priority = tag.includes('brand-logo') || tag.includes('centre-team-20261013') || heroContext.includes('interior-hero-image') || heroContext.includes('specialist-detail-photo');
+    // Encoding/resizing only: keep original photos and credential originals unchanged.
+    if (/\.(?:png|jpe?g|webp)$/.test(src) && !src.includes('/credentials/') && !src.includes('resource-test-example')) {
+      if (!optimizedImages.has(src)) {
+        const bytes=await readFile(imagePath),id=createHash('sha256').update(bytes).digest('hex').slice(0,16);
+        const fixed=src.includes('/icons/') ? 256 : src.includes('/brand/') ? 640 : null;
+        const max=Math.min(size.width||1280,fixed||1440);
+        const widths=fixed ? [max] : [...new Set([...([480,768,1200].filter(w=>w<max)),max])];
+        const variants=[];
+        for (const width of widths) {
+          const path=`images/optimized/${id}-${width}.webp`;
+          await sharp(bytes).resize({width,withoutEnlargement:true}).webp({quality:90,lossless:src.includes('/icons/')}).toFile(join(output,path));
+          variants.push({width,src:`${base}${path}`});
+        }
+        optimizedImages.set(src,{variants,fixed});
+      }
+      const image=optimizedImages.get(src),variants=image.variants;
+      tag=tag.replace(`src="${src}"`,`src="${variants.at(-1).src}"`);
+      if (!image.fixed) {
+        const sizes=priority ? '(max-width: 700px) 100vw, 55vw' : '(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 25vw';
+        tag=tag.replace(/>$/,` srcset="${variants.map(v=>`${v.src} ${v.width}w`).join(', ')}" sizes="${sizes}">`);
+      }
+    }
+    if (!priority) tag = tag.replace(/>$/, ' loading="lazy" decoding="async">');
+    else if (!tag.includes('brand-logo')) tag = tag.replace(/>$/, ' fetchpriority="high" decoding="async">');
+    html = html.replace(match[0],tag);
+  }
+  html = html.replaceAll(' · </p>', '</p>');
+  if (!serverForms) html = html.replaceAll('<!--TEST_ACTION-->', '<p class="resource-note">Ссылка на Яндекс Форму скоро появится.</p>');
   await writeFile(join(dir, "index.html"), html);
+  manifestPages[slug === "index" ? "" : slug] = {...pageMetadata[slug === "index" ? "" : slug],file:slug === "index" ? "index.html" : `${slug}/index.html`};
 }
 
-await cp(join(output, "contacts"), join(output, "kontakty"), { recursive: true });
-await cp(join(output, "osnovatel"), join(output, "o-centre"), { recursive: true });
-await writeFile(join(output, "404.html"), layout("Страница не найдена", `<main>${header()}<section class="legal-copy"><h2>Страница не найдена</h2><p><a class="button" href="${base}">Вернуться на главную</a></p></section>${footer()}</main>`));
+// Primary aliases are real server redirects; demo aliases remain non-indexable.
+if (!serverForms) for (const [alias,target] of [["kontakty","contacts"],["o-centre","osnovatel"],["socialnye-seti","contacts"]]) {
+  await mkdir(join(output,alias),{recursive:true});
+  await writeFile(join(output,alias,"index.html"),`<!doctype html><html lang="ru"><head><meta name="robots" content="noindex,nofollow"><meta http-equiv="refresh" content="0;url=${link(target)}"><title>Переход</title></head><body><a href="${link(target)}">Перейти на страницу</a></body></html>`);
+}
+await writeFile(join(output, "404.html"), layout("Страница не найдена", `<main>${header()}<section class="legal-copy"><h1>Страница не найдена</h1><p><a class="button" href="${base}">Вернуться на главную</a></p></section>${footer()}</main>`, "Страница не найдена", "404", null, false));
+if (serverForms) {
+  await writeFile(join(output,".site-manifest.json"),JSON.stringify({pages:manifestPages,documents:Object.fromEntries(legalDocumentDefinitions.map(doc=>[doc.slug,doc])),specialists:specialistProfiles.map(({slug,name,format})=>({slug,name,format}))},null,2));
+  for (const [src,dest] of [["runtime.php","site-runtime.php"],["admin.php","beget-admin.php"],["admin.css","beget-admin.css"],["site-ui.js","site-ui.js"],["htaccess",".htaccess"],["dev-router.php","dev-router.php"]]) await cp(join(root,"beget",src),join(output,dest));
+  await cp(join(root,"public","googlef2660784658c6c2f.html"),join(output,"googlef2660784658c6c2f.html"));
+  await cp(join(root,"public","llms.txt"),join(output,".llms-source.txt"));
+}
 
 console.log(output);

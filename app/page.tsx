@@ -6,8 +6,14 @@ import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { getContent } from "@/lib/content.server";
 import { ResourceTestTeaser } from "@/components/resource-test";
 import { consultationPrice } from "@/lib/site-copy";
+import { defaultPageSeo, organizationSchema } from "@/lib/seo";
+import { StructuredData } from "@/components/structured-data";
 
 export const dynamic = "force-dynamic";
+export async function generateMetadata() {
+  const page = (await getContent("seo")).find((item) => item.slug === "");
+  return { ...defaultPageSeo("", "Путь к себе", "Психологический центр во Владивостоке"), ...(page ? { title: page.title, description: page.subtitle } : {}) };
+}
 
 const pathItems = [
   { icon: "path-science", label: "Научный подход" },
@@ -44,6 +50,7 @@ export default async function Home() {
 
   return (
     <main className="home-reference">
+      <StructuredData value={organizationSchema} />
       <SiteHeader />
       <section className="hero">
         <div className="hero-copy">
@@ -51,7 +58,7 @@ export default async function Home() {
           <h1>Найди <em>баланс</em><br />между бизнесом<br />и семьёй</h1>
           <p className="hero-lead">Укрепи себя, сохрани семью<br />и расти в доходе.</p>
           <div className="hero-actions">
-            <a className="button" href="#consultation">Индивидуальный подбор специалиста <ArrowIcon /></a>
+            <Link className="button" href="/specialisty">Индивидуальный подбор специалиста <ArrowIcon /></Link>
             <Link className="button button-light" href="/test-na-resursnost">Тест на ресурсность <ArrowIcon /></Link>
           </div>
           <div className="hero-stats" aria-label="О центре">
@@ -61,9 +68,9 @@ export default async function Home() {
           </div>
         </div>
         <div className="hero-photo">
-          <Image src="/images/centre-team-real.jpg" alt="Участники встречи центра «Путь к себе»" fill priority sizes="(max-width: 800px) 100vw, 55vw" />
+          <Image src="/images/centre-team-20261013.webp" alt="Участники встречи центра «Путь к себе»" fill priority sizes="(max-width: 800px) 100vw, 55vw" />
           <div className="hero-quote">Помогаем<br />идти по-настоящему —<br />с опорой для бизнеса и семьи</div>
-          <Link className="hero-play" href="/o-centre"><span><PlayIcon /></span><b>Посмотрите<br />о нашем подходе</b></Link>
+          <Link className="hero-play" href="/osnovatel"><span><PlayIcon /></span><b>Посмотрите<br />о нашем подходе</b></Link>
         </div>
       </section>
 
@@ -163,7 +170,7 @@ export default async function Home() {
 
       <section className="consultation-section" id="consultation">
         <div><h2>Перестань выбирать между бизнесом и семьёй</h2><p>Укрепи себя, сохрани близость и создай условия для роста дохода.</p></div>
-        <Link className="button button-light" href="/kontakty">Индивидуальный подбор специалиста <ArrowIcon /></Link>
+        <Link className="button button-light" href="/specialisty">Индивидуальный подбор специалиста <ArrowIcon /></Link>
       </section>
       <SiteFooter />
     </main>

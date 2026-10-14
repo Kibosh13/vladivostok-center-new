@@ -51,6 +51,8 @@ next-env.d.ts
 /dist/
 /.wrangler/
 /.pages-demo/
+/.beget-build/
+/.beget-private/
 *.tar
 *.tar.gz
 *.zip

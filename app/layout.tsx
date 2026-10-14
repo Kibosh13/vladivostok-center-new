@@ -3,6 +3,7 @@ import { SiteMotion } from "@/components/site-motion";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://putksebevladivostok.ru"),
   title: "Путь к себе — психологический центр во Владивостоке",
   description: "Работа с предпринимателями, руководителями и семьями: состояние, отношения, решения и рост без выгорания.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },

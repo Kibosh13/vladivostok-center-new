@@ -5,19 +5,19 @@ import { navItems } from "@/lib/content";
 import { whatsappUrl } from "@/lib/site-copy";
 
 export function SiteHeader() {
-  const headerNavItems = navItems.filter((item) => item.href !== "/contacts");
+  const headerNavItems = navItems;
   return (
     <header className="site-header">
       <div className="header-brand-group"><Link className="brand" href="/" aria-label="Путь к себе — главная"><Image className="brand-logo" src="/images/brand/logo-put-k-sebe.png" alt="Международный тренинговый центр «Путь к себе»" width={1280} height={688} priority /></Link><span className="header-city">Владивосток</span></div>
       <nav className="main-nav" aria-label="Основная навигация">
         {headerNavItems.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
       </nav>
-      <Link className="button button-small" href="/contacts">Индивидуальный подбор специалиста <ArrowIcon /></Link>
+      <Link className="button button-small" href="/specialisty">Индивидуальный подбор специалиста <ArrowIcon /></Link>
       <details className="mobile-nav">
         <summary aria-label="Открыть меню"><span /><span /></summary>
         <nav aria-label="Мобильная навигация">
           {navItems.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
-          <Link className="mobile-nav-cta" href="/contacts">Индивидуальный подбор специалиста <ArrowIcon /></Link>
+          <Link className="mobile-nav-cta" href="/specialisty">Индивидуальный подбор специалиста <ArrowIcon /></Link>
         </nav>
       </details>
     </header>
@@ -39,21 +39,18 @@ export function SiteFooter() {
           <a href="tel:+79146658653">+7 914 665-86-53</a>
           <a href={whatsappUrl} target="_blank" rel="noreferrer">Написать в WhatsApp →</a>
           <a href="tg://resolve?phone=79146658653">Написать в Telegram →</a>
-          <a href="https://max.ru/" target="_blank" rel="noreferrer">MAX · +7 914 665-86-53</a>
           <a href="https://vk.ru/putkseberu" target="_blank" rel="noreferrer">ВКонтакте</a>
         </div>
       </div>
       <div className="footer-bottom">
         <span>© 2026 Путь к себе. Все права защищены.</span>
-        <Link href="/privacy">Политика конфиденциальности</Link>
-        <Link href="/offer">Договор оферты</Link>
+        <Link href="/dokumenty">Документы и согласия</Link>
         <Link href="/admin">Админ‑панель</Link>
       </div>
     </footer>
     <nav className="floating-messengers" aria-label="Связаться в мессенджере">
       <a className="messenger-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="Написать в WhatsApp"><Image src="/images/social/whatsapp.svg" alt="" width={28} height={28} /></a>
       <a className="messenger-telegram" href="tg://resolve?phone=79146658653" aria-label="Написать в Telegram"><Image src="/images/social/telegram.svg" alt="" width={28} height={28} /></a>
-      <a className="messenger-max" href="https://max.ru/" target="_blank" rel="noreferrer" aria-label="Открыть MAX"><Image src="/images/social/max.png" alt="" width={34} height={34} /></a>
     </nav>
     </>
   );

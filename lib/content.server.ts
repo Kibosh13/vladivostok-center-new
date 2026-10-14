@@ -1,7 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { contentItems } from "@/db/schema";
-import { ContentItem, ContentType, defaultsByType } from "@/lib/content";
+import { ContentItem, ContentType, defaultsByType, safeMeta } from "@/lib/content";
 
 const contentRevision = new Date("2026-10-02T20:30:00.000Z").getTime();
 const revisedDefaults = new Set([
@@ -33,7 +33,14 @@ export async function getContent(type: ContentType, includeUnpublished = false):
     const overrides = new Map(rows.map((row) => [row.id, row as ContentItem]));
     const merged = defaults.map((item) => {
       const override = overrides.get(item.id) as ContentItem | undefined;
-      return override && isNewerAdminEdit(override) ? override : item;
+      if (!override || !isNewerAdminEdit(override)) return item;
+      const updatedAt = override.updatedAt ? new Date(override.updatedAt).getTime() : 0;
+      if (updatedAt < new Date("2026-10-13T14:00:00.000Z").getTime()) {
+        if (item.id === "specialist-tatyana") return { ...override, image: item.image };
+        if (item.id === "event-review") return { ...override, subtitle: item.subtitle, meta: JSON.stringify({ ...safeMeta(override), ...safeMeta(item) }) };
+        if (item.id === "event-model") return { ...override, meta: JSON.stringify({ ...safeMeta(override), archived: "true" }) };
+      }
+      return override;
     });
     const extras = rows.filter((row) => !defaults.some((item) => item.id === row.id)) as ContentItem[];
     const all = [...merged, ...extras].sort((a, b) => a.sortOrder - b.sortOrder);

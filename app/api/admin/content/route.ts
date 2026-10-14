@@ -5,7 +5,7 @@ import { getChatGPTUser } from "@/app/chatgpt-auth";
 import { getContent } from "@/lib/content.server";
 import type { ContentType } from "@/lib/content";
 
-const types: ContentType[] = ["specialist", "program", "event", "review"];
+const types: ContentType[] = ["specialist", "program", "event", "review", "document", "seo"];
 
 async function guard() { return Boolean(await getChatGPTUser()); }
 
@@ -22,6 +22,7 @@ export async function POST(request: Request) {
   const type = payload.type as ContentType;
   const title = String(payload.title || "").trim();
   if (!types.includes(type) || !title) return Response.json({ error: "Укажите раздел и заголовок" }, { status: 400 });
+  if (type === "document" && payload.published !== false && !String(payload.body || "").trim()) return Response.json({ error: "Заполните документ перед публикацией" }, { status: 400 });
   const id = `${type}-${crypto.randomUUID()}`;
   const db = getDb();
   const [item] = await db.insert(contentItems).values({
@@ -38,14 +39,16 @@ export async function PUT(request: Request) {
   const id = String(payload.id || "");
   const type = payload.type as ContentType;
   const title = String(payload.title || "").trim();
+  const slug = type === "seo" && payload.slug === "" ? "" : String(payload.slug || id);
   if (!id || !types.includes(type) || !title) return Response.json({ error: "Не хватает данных" }, { status: 400 });
+  if (type === "document" && payload.published !== false && !String(payload.body || "").trim()) return Response.json({ error: "Заполните документ перед публикацией" }, { status: 400 });
   const db = getDb();
   await db.insert(contentItems).values({
-    id, type, slug: String(payload.slug || id), title, subtitle: String(payload.subtitle || ""), body: String(payload.body || ""),
+    id, type, slug, title, subtitle: String(payload.subtitle || ""), body: String(payload.body || ""),
     image: String(payload.image || ""), meta: String(payload.meta || "{}"), sortOrder: Number(payload.sortOrder || 0),
     published: payload.published !== false, updatedAt: new Date().toISOString(),
   }).onConflictDoUpdate({ target: contentItems.id, set: {
-    slug: String(payload.slug || id), title, subtitle: String(payload.subtitle || ""), body: String(payload.body || ""),
+    slug, title, subtitle: String(payload.subtitle || ""), body: String(payload.body || ""),
     image: String(payload.image || ""), meta: String(payload.meta || "{}"), sortOrder: Number(payload.sortOrder || 0),
     published: payload.published !== false, updatedAt: new Date().toISOString(),
   }});

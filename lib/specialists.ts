@@ -109,7 +109,7 @@ export const specialistProfiles: SpecialistProfile[] = [
     role: "Практический психолог, коуч",
     format: "Онлайн",
     city: "Онлайн по всему миру",
-    image: "/images/specialists/tatyana-vasilieva.png",
+    image: "/images/specialists/tatyana-vasilieva-20261013.webp",
     intro: "Использует комплексный индивидуальный подход и вместе с клиентом формирует стратегию изменений. Помогает восстановить контакт с собой, почувствовать собственную ценность и двигаться к целям устойчивее.",
     requests: [
       "Завершение старых и построение новых отношений",

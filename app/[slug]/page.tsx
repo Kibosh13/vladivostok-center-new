@@ -1,15 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { GeneratedIcon } from "@/components/generated-icon";
 import { ArrowIcon } from "@/components/premium-icons";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
-import { LeadForm } from "@/components/lead-form";
 import { getContent } from "@/lib/content.server";
-import { safeMeta, type ContentItem, type ContentType } from "@/lib/content";
+import { safeMeta, legalDocumentDefinitions, type ContentItem, type ContentType } from "@/lib/content";
 import { FounderContent, EducationContent, ScienceContent, BookContent } from "@/components/founder-content";
 import { ResourceTestContent } from "@/components/resource-test";
 import { consultationPrice, selectionDescription, whatsappUrl } from "@/lib/site-copy";
+import { defaultPageSeo, personSchema, siteOrigin } from "@/lib/seo";
+import { StructuredData } from "@/components/structured-data";
+import { specialistProfiles } from "@/lib/specialists";
 
 export const dynamic = "force-dynamic";
 
@@ -33,15 +35,18 @@ const pages: Record<string, PageConfig> = {
   obrazovanie: { eyebrow: "Опыт и метод", title: "Образование и научная работа", lead: "Системная психология, семейная терапия и авторский метод формирования ресурсных систем личности.", image: "/images/alena-portrait-1.jpg" },
   putksebe: { eyebrow: "7 недель, которые меняют жизнь", title: "Курс «Путь к себе»", lead: "Авторский курс в формате группового наставничества, который проводится уже 18 лет. До 10 человек в группе.", image: "/images/founder-speaking.jpeg" },
   "rassvet-biznesa": { eyebrow: "15 сентября · 10:00–17:00", title: "Деньги. Смыслы. Отношения", lead: "Один день на яхте вдали от суеты, чтобы увидеть конфликт между деньгами, отношениями и смыслами — и найти внутреннюю опору.", image: "/images/event-2.jpg" },
-  contacts: { eyebrow: "Владивосток", title: "Контакты", lead: "Свяжитесь с нами — поможем сформулировать запрос и подобрать специалиста или формат работы.", image: "/images/event-2.jpg" },
+  contacts: { eyebrow: "Владивосток", title: "Контакты и социальные сети", lead: "Свяжитесь с нами — поможем сформулировать запрос и подобрать специалиста или формат работы.", image: "/images/event-2.jpg" },
   privacy: { eyebrow: "Документы", title: "Политика конфиденциальности", lead: "Как центр обрабатывает контактные данные, которые вы оставляете в форме на сайте.", image: "/images/event-2.jpg" },
   offer: { eyebrow: "Документы", title: "Договор оферты", lead: "Общие условия записи, оплаты и участия в программах центра.", image: "/images/event-2.jpg" },
 };
+pages.dokumenty = { eyebrow: "Информация для клиентов", title: "Документы и согласия", lead: "Условия работы центра и документы об обработке персональных данных.", image: "/images/centre-materials.jpg" };
+for (const doc of legalDocumentDefinitions) pages[doc.slug] = { eyebrow: "Документы", title: doc.title, lead: "Документ центра «Путь к себе».", image: "/images/centre-materials.jpg" };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const page = pages[slug];
-  return page ? { title: `${page.title} — Путь к себе`, description: page.lead } : {};
+  const seo = (await getContent("seo")).find((item) => item.slug === slug);
+  return page ? { ...defaultPageSeo(slug, page.title, page.lead), ...(seo ? { title: seo.title, description: seo.subtitle } : {}) } : {};
 }
 
 function Cards({ items, type }: { items: ContentItem[]; type: ContentType }) {
@@ -57,7 +62,7 @@ function Cards({ items, type }: { items: ContentItem[]; type: ContentType }) {
             <p>{item.body}</p>
             {type === "specialist" && <p className="specialist-price">{consultationPrice}</p>}
             {type === "specialist" && <span className="interior-card-link">Подробнее о специалисте <ArrowIcon /></span>}
-            {type !== "review" && type !== "specialist" && item.slug !== "transformacionnye-igry" && <a href="#consultation">Индивидуальный подбор специалиста <ArrowIcon /></a>}
+            {type !== "review" && type !== "specialist" && item.slug !== "transformacionnye-igry" && <Link href="/specialisty">Индивидуальный подбор специалиста <ArrowIcon /></Link>}
           </div>
         </article>;
         return type === "specialist" ? <Link className="interior-card-wrapper" href={`/specialisty/${item.slug}`} key={item.id}>{card}</Link> : <div className="interior-card-wrapper" key={item.id}>{card}</div>;
@@ -75,7 +80,7 @@ function ReviewsExternal() {
 function SocialNetworks() {
   const networks = [
     ["Telegram", "Новости и анонсы центра", "https://t.me/centre_pathtoyourself"],
-    ["MAX", "+7 914 665-86-53", "https://max.ru/"],
+    ["WhatsApp", "Связаться с центром", whatsappUrl],
     ["ВКонтакте", "Материалы, события и общение", "https://vk.ru/putkseberu"],
     ["Instagram", "Жизнь центра и короткие заметки", "https://www.instagram.com/itc.put_k_sebe"],
   ];
@@ -115,24 +120,32 @@ function YachtContent() {
 }
 
 function ContactContent() {
-  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><GeneratedIcon name="utility-phone" /> <a href="tel:+79146658653">+7 914 665-86-53</a></p><p><GeneratedIcon name="utility-location" /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><GeneratedIcon name="utility-send" /> <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a> · <a href="tg://resolve?phone=79146658653">Telegram</a> · <a href="https://max.ru/">MAX</a> · <a href="https://vk.ru/putkseberu">ВКонтакте</a> · <a href="https://www.instagram.com/itc.put_k_sebe">Instagram</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div id="consultation"><h2>Индивидуальный подбор специалиста</h2><p>{selectionDescription}</p><LeadForm source="contacts" /></div></section>;
+  return <section className="contact-page-grid"><div className="contact-details"><span className="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p><GeneratedIcon name="utility-phone" /> <a href="tel:+79146658653">+7 914 665-86-53</a></p><p><GeneratedIcon name="utility-location" /> Владивосток, ул. Бестужева, 21Б, этаж 2</p><p><GeneratedIcon name="utility-send" /> <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a> · <a href="tg://resolve?phone=79146658653">Telegram</a></p><p className="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div className="selection-invitation"><h2>Подбор психолога под ваш запрос</h2><p>{selectionDescription}</p><Link className="button" href="/specialisty">Посмотреть специалистов <ArrowIcon /></Link></div></section>;
 }
 
-function LegalContent({ offer }: { offer: boolean }) {
-  return <section className="legal-copy"><h2>{offer ? "Общие условия" : "Обработка персональных данных"}</h2>{offer ? <><p>Запись на консультации, мероприятия и программы подтверждается после согласования формата, времени и стоимости с представителем центра.</p><p>Условия оплаты, переноса и возврата сообщаются до оплаты выбранной услуги. Для мероприятий с ограниченным числом мест бронирование считается завершённым после подтверждения.</p></> : <><p>Оператор: Индивидуальный предприниматель Савинова Алёна Викторовна, ОГРНИП 321774600294768, ИНН 254001615330.</p><p>Данные из формы используются только для связи по вопросу консультации, мероприятия или программы. Вы можете запросить уточнение или удаление данных по телефону центра.</p><p>Продолжая пользоваться сайтом, вы соглашаетесь с использованием технических cookies, необходимых для его работы.</p></>}</section>;
+function LegalContent({ item }: { item: ContentItem }) {
+  return <section className="legal-copy"><div className="legal-document-text">{item.body}</div></section>;
 }
 
 export default async function InteriorPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (slug === "socialnye-seti" || slug === "kontakty") permanentRedirect("/contacts/");
+  if (slug === "o-centre") permanentRedirect("/osnovatel/");
   const page = pages[slug];
   if (!page) notFound();
+  const documents = await getContent("document", true);
+  const document = documents.find((item) => item.slug === slug);
+  if (document && (!document.published || !document.body.trim())) notFound();
   const items = page.type ? await getContent(page.type) : slug === "arhiv-meropriyatiy" ? await getContent("event") : [];
   const visibleItems = page.type === "specialist" ? items.filter((item) => item.id !== "specialist-alena") : items;
   const upcomingEvents = visibleItems.filter((item) => safeMeta(item).archived !== "true");
   const archivedEvents = items.filter((item) => safeMeta(item).archived === "true");
   return <main>
     <SiteHeader />
-    <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p><a className="button" href={slug === "test-na-resursnost" ? "#take-test" : "#consultation"}>{slug === "test-na-resursnost" ? "Пройти тест" : "Индивидуальный подбор специалиста"} <ArrowIcon /></a></div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>
+    {slug === "osnovatel" && <StructuredData value={personSchema("Алёна Савинова", "osnovatel", "Бизнес-психолог, основатель центра", page.image)} />}
+    {slug === "specialisty" && <StructuredData value={specialistProfiles.map((profile) => personSchema(profile.name, `specialisty/${profile.slug}`, profile.role, profile.image))} />}
+    {slug === "uslugi" && <StructuredData value={visibleItems.map((item) => ({ "@context": "https://schema.org", "@type": "Service", name: item.title, description: item.body, url: `${siteOrigin}/uslugi/#${item.slug}`, provider: { "@type": "Organization", name: "Путь к себе", "@id": `${siteOrigin}/#organization` } }))} />}
+    <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p>{!document && slug !== "dokumenty" && <Link className="button" href={slug === "test-na-resursnost" ? "/test-na-resursnost#take-test" : "/specialisty"}>{slug === "test-na-resursnost" ? "Пройти тест" : "Индивидуальный подбор специалиста"} <ArrowIcon /></Link>}</div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>
     <div className="interior-body">
       {page.type && slug !== "meropriyatiya" && <Cards items={visibleItems} type={page.type} />}
       {slug === "meropriyatiya" && <><Cards items={upcomingEvents} type="event" /><EventsArchiveEntry /></>}
@@ -146,9 +159,8 @@ export default async function InteriorPage({ params }: { params: Promise<{ slug:
       {slug === "rassvet-biznesa" && <YachtContent />}
       {slug === "contacts" && <ContactContent />}
       {slug === "contacts" && <SocialNetworks />}
-      {slug === "privacy" && <LegalContent offer={false} />}
-      {slug === "offer" && <LegalContent offer />}
-      {slug !== "test-na-resursnost" && slug !== "contacts" && slug !== "privacy" && slug !== "offer" && <section className="interior-consultation" id="consultation"><div><span className="section-label">Первый шаг</span><h2>Индивидуальный подбор специалиста</h2><p>{selectionDescription}</p></div><LeadForm source={`page-${slug}`} /></section>}
+      {document && <LegalContent item={document} />}
+      {slug === "dokumenty" && <section className="legal-documents-list">{documents.map((item) => item.published && item.body.trim() ? <Link key={item.id} href={`/${item.slug}/`}>{item.title}<ArrowIcon /></Link> : <div key={item.id}><span>{item.title}</span><small>Текст готовится к публикации</small></div>)}</section>}
     </div>
     <SiteFooter />
   </main>;

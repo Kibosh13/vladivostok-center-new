@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { CalendarDays, Inbox, LayoutGrid, MessageSquareQuote, Pencil, Plus, UsersRound } from "lucide-react";
+import { CalendarDays, FileText, Search, Inbox, LayoutGrid, MessageSquareQuote, Pencil, Plus, UsersRound } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ const sections: Array<{ type: ContentType; label: string; icon: typeof UsersRoun
   { type: "program", label: "Программы", icon: LayoutGrid },
   { type: "event", label: "Мероприятия", icon: CalendarDays },
   { type: "review", label: "Отзывы", icon: MessageSquareQuote },
+  { type: "document", label: "Документы", icon: FileText },
+  { type: "seo", label: "SEO", icon: Search },
 ];
 
 const emptyItem: ContentItem = { id: "", type: "specialist", slug: "", title: "", subtitle: "", body: "", image: "", meta: "{}", sortOrder: 100, published: true };
@@ -68,7 +70,7 @@ export function AdminPanel({ initialItems, initialLeads }: { initialItems: Group
         <TabsTrigger value="leads"><Inbox />Заявки <span className="admin-badge">{leadStats.fresh}</span></TabsTrigger>
       </TabsList>
       {sections.map(({ type, label }) => <TabsContent key={type} value={type} className="admin-panel">
-        <div className="admin-panel-heading"><div><h2>{label}</h2><p>Контент этого раздела сразу используется на сайте.</p></div><Button onClick={() => openNew(type)}><Plus /> Добавить</Button></div>
+        <div className="admin-panel-heading"><div><h2>{label}</h2><p>{type === "document" ? "Заполните и согласуйте текст. Документ станет доступен после включения публикации; пустые тексты не являются согласием." : type === "seo" ? "Название — Title, подзаголовок — Description. Поля индивидуальны для каждой страницы." : "Контент этого раздела сразу используется на сайте."}</p></div>{type !== "document" && type !== "seo" && <Button onClick={() => openNew(type)}><Plus /> Добавить</Button>}</div>
         <Table><TableHeader><TableRow><TableHead>Название</TableHead><TableHead>Подзаголовок</TableHead><TableHead>Порядок</TableHead><TableHead>Статус</TableHead><TableHead className="w-24">Действия</TableHead></TableRow></TableHeader><TableBody>
           {items[type].map((item) => <TableRow key={item.id}><TableCell className="font-medium">{item.title}</TableCell><TableCell className="max-w-80 truncate text-muted-foreground">{item.subtitle}</TableCell><TableCell>{item.sortOrder}</TableCell><TableCell><span className={item.published ? "status-chip active" : "status-chip"}>{item.published ? "Опубликовано" : "Скрыто"}</span></TableCell><TableCell><Button variant="ghost" size="icon-sm" aria-label={`Редактировать ${item.title}`} onClick={() => openEdit(item)}><Pencil /></Button></TableCell></TableRow>)}
         </TableBody></Table>
@@ -88,8 +90,8 @@ export function AdminPanel({ initialItems, initialLeads }: { initialItems: Group
           <div><Label htmlFor="title">Название</Label><Input id="title" value={editor.title} required onChange={(event) => setEditor({ ...editor, title: event.target.value })} /></div>
           <div><Label htmlFor="subtitle">Подзаголовок / дата / формат</Label><Input id="subtitle" value={editor.subtitle} onChange={(event) => setEditor({ ...editor, subtitle: event.target.value })} /></div>
           <div className="full"><Label htmlFor="body">Описание</Label><Textarea id="body" rows={6} value={editor.body} onChange={(event) => setEditor({ ...editor, body: event.target.value })} /></div>
-          <div className="full"><Label htmlFor="image">Путь к изображению или URL</Label><Input id="image" value={editor.image} placeholder="/images/photo.jpg" onChange={(event) => setEditor({ ...editor, image: event.target.value })} /></div>
-          <div><Label htmlFor="slug">Адрес</Label><Input id="slug" value={editor.slug} onChange={(event) => setEditor({ ...editor, slug: event.target.value })} /></div>
+          {editor.type !== "document" && editor.type !== "seo" && <div className="full"><Label htmlFor="image">Путь к изображению или URL</Label><Input id="image" value={editor.image} placeholder="/images/photo.jpg" onChange={(event) => setEditor({ ...editor, image: event.target.value })} /></div>}
+          <div><Label htmlFor="slug">Адрес</Label><Input id="slug" value={editor.slug} readOnly={editor.type === "document" || editor.type === "seo"} onChange={(event) => setEditor({ ...editor, slug: event.target.value })} /></div>
           <div><Label htmlFor="order">Порядок</Label><Input id="order" type="number" value={editor.sortOrder} onChange={(event) => setEditor({ ...editor, sortOrder: Number(event.target.value) })} /></div>
           <label className="publish-check"><Checkbox checked={editor.published} onCheckedChange={(checked) => setEditor({ ...editor, published: checked === true })} />Показывать на сайте</label>
           <DialogFooter className="full"><Button type="button" variant="outline" onClick={() => setEditor(null)}>Отмена</Button><Button type="submit" disabled={saving}>{saving ? "Сохраняем…" : "Сохранить"}</Button></DialogFooter>
