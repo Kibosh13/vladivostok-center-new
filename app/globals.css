@@ -1727,6 +1727,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid #9d6d43; outline-offs
 .booking-form [data-booking-result] { grid-column: 1 / -1; }
 
 /* Event albums and a comfortable reading scale, October 2026. */
+@media(max-width:1580px) {
+  .site-header > .main-nav, .home-reference .site-header > .main-nav, .site-header > .button { display:none; }
+  .site-header .demo-menu, .site-header .mobile-nav { display:block; }
+  .site-header .main-nav.open, .home-reference .site-header .main-nav.open { display:flex; position:absolute; left:20px; right:20px; top:100%; padding:20px; flex-direction:column; background:#fff; box-shadow:0 15px 40px rgba(0,0,0,.12); }
+}
 .header-city { font-size: 18px; }
 .site-header .main-nav, .home-reference .main-nav { font-size: 17px; }
 .site-header .main-nav a, .mobile-nav nav a { padding-block: 9px; }

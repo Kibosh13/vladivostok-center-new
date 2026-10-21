@@ -19,6 +19,8 @@ const assetVersion = createHash("sha256")
   .update(await readFile(join(root, "scripts/editorial-html.mjs")))
   .update(await readFile(join(root, "lib/founder.ts")))
   .update(await readFile(join(root, "lib/site-copy.ts")))
+  .update(await readFile(join(root, "beget/site-ui.js")))
+  .update(await readFile(join(root, "scripts/booking-html.mjs")))
   .update(await readFile(fileURLToPath(import.meta.url)))
   .digest("hex").slice(0, 12);
 
