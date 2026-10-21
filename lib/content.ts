@@ -49,17 +49,17 @@ export const defaultContent: ContentItem[] = [
   {
     id: "program-strategy", type: "program", slug: "strategicheskaya-sessiya", title: "Стратегическая сессия", subtitle: "Онлайн или офлайн · 1,5 часа",
     body: "Для собственников и руководителей, которым нужен ясный план перехода из точки А в точку Б. Формат и продолжительность программы подбираются под задачу.",
-    image: "/images/event-2.jpg", meta: JSON.stringify({ category: "Состояние собственника" }), sortOrder: 10, published: true,
+    image: "/images/strategy-20261021.webp", meta: JSON.stringify({ category: "Состояние собственника" }), sortOrder: 10, published: true,
   },
   {
     id: "program-business-review", type: "program", slug: "razbor-biznesa", title: "Разбор бизнеса", subtitle: "Совместный поиск точки роста",
     body: "Для собственников, которые не видят, где теряются деньги и что тормозит масштаб. За несколько часов вы замечаете слепые зоны и находите рабочие ходы.",
-    image: "/images/business-session.jpg", meta: JSON.stringify({ category: "Решения и рост" }), sortOrder: 20, published: true,
+    image: "/images/business-review-20261021.webp", meta: JSON.stringify({ category: "Решения и рост" }), sortOrder: 20, published: true,
   },
   {
     id: "program-arrangement", type: "program", slug: "biznes-rasstanovki", title: "Бизнес-расстановки", subtitle: "Групповой формат",
     body: "Системная работа с бизнесом и ресурсами для предпринимателей в стагнации, которые ищут новую модель дохода и решений.",
-    image: "/images/team-2.jpg", meta: JSON.stringify({ category: "Семья, команда, бизнес" }), sortOrder: 30, published: true,
+    image: "/images/business-arrangement-20261021.webp", meta: JSON.stringify({ category: "Семья, команда, бизнес" }), sortOrder: 30, published: true,
   },
   {
     id: "program-games", type: "program", slug: "transformacionnye-igry", title: "Трансформационные игры", subtitle: "Афиша формируется",
@@ -74,12 +74,17 @@ export const defaultContent: ContentItem[] = [
   {
     id: "event-model", type: "event", slug: "rasshirenie-vozmozhnostey", title: "Расширение возможностей", subtitle: "29 сентября · 18:00–21:00 · бизнес-расстановка",
     body: "Вы чувствуете, что готовы к большему, но будто что-то не даёт выйти на новый уровень? Масштаб — это не только больше денег и возможностей. Это ещё больше ответственности, решений и необходимости отпускать контроль.\n\nИногда именно внутренние страхи, ограничения и привычные сценарии не позволяют расшириться, даже когда внешне всё для этого уже есть. Посмотрим, что мешает вам идти в масштаб и что стоит за внутренними препятствиями на пути к следующему уровню.\n\nЕсли сейчас вы стоите на пороге роста — приходите.\n\nЗапись: +7 914 665-86-53 · Telegram.",
-    image: "/images/founder-speaking.jpeg", meta: JSON.stringify({ date: "29 сентября", startsAt: "2026-09-29T18:00:00+10:00", endsAt: "2026-09-29T21:00:00+10:00", archived: "true" }), sortOrder: 20, published: true,
+    image: "/images/events/rasshirenie-vozmozhnostey/photo-9.webp", meta: JSON.stringify({ date: "29 сентября", startsAt: "2026-09-29T18:00:00+10:00", endsAt: "2026-09-29T21:00:00+10:00", archived: "true" }), sortOrder: 20, published: true,
   },
   {
     id: "event-yacht", type: "event", slug: "rassvet-biznesa", title: "Деньги. Смыслы. Отношения", subtitle: "15 сентября, 10:00–17:00 · 25 000 ₽",
     body: "Камерный тренинг на яхте до 10 человек: мастер-класс, мини-расстановки и работа с конфликтом между деньгами, отношениями и личными смыслами.",
-    image: "/images/event-2.jpg", meta: JSON.stringify({ date: "15 сентября", price: "25 000 ₽", archived: "true" }), sortOrder: 30, published: true,
+    image: "/images/events/rassvet-biznesa/photo-1.webp", meta: JSON.stringify({ date: "15 сентября", price: "25 000 ₽", archived: "true" }), sortOrder: 30, published: true,
+  },
+  {
+    id: "event-unfinished-relationships", type: "event", slug: "nezavershennye-otnosheniya", title: "Незавершённые отношения", subtitle: "31 октября · с 11:00 · открытый тренинг",
+    body: "Иногда мы так увлекаемся заработком и заботой о близких, что откладываем собственную жизнь. За стремлением заработать ещё больше могут стоять истории, которые продолжают влиять на решения и отношения.\n\nОдна из историй — об Игоре, имя изменено. Он хорошо зарабатывал, откладывал и инвестировал, но постоянно боялся всё потерять. В работе выяснилось: в детстве, когда отец потерял бизнес, мать отстранила его от семьи. Для Игоря заработок оказался связан со страхом потерять близких. Он взял на себя ответственность за маму и долго откладывал собственную семью. Разобрав эту историю, он начал яснее видеть свои желания: семью, дружбу и близость. Это отдельная история, а не обещание одинакового результата для всех.\n\nОткрытый тренинг проводится по запросу участников курса «Путь к себе». В программу уже включены тренинговая и расстановочная части, посвящённые завершению незавершённых отношений и процессов.\n\nФорматы участия:\n• Участник — весь тренинг с 11:00, 50 000 ₽.\n• Заместитель — присоединение с 16:00, 5 000 ₽.\n\nКоличество расстановок зависит от числа участников. На момент анонса запланированы четыре расстановки. Можно прийти участником или заместителем.\n\nЗапись и организационные вопросы: +7 914 665-86-53. Владивосток, ул. Бестужева, 21Б, этаж 2.",
+    image: "/images/strategy-20261021.webp", meta: JSON.stringify({date:"31 октября",startsAt:"2026-10-31T11:00:00+10:00",price:"Участник — 50 000 ₽; заместитель — 5 000 ₽",archived:"false"}),sortOrder:15,published:true,
   },
   {
     id: "review-anna", type: "review", slug: "anna", title: "Анна", subtitle: "Клиент центра",

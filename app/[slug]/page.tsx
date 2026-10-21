@@ -8,6 +8,8 @@ import { getContent } from "@/lib/content.server";
 import { safeMeta, legalDocumentDefinitions, type ContentItem, type ContentType } from "@/lib/content";
 import { FounderContent, EducationContent, ScienceContent, BookContent } from "@/components/founder-content";
 import { ResourceTestContent } from "@/components/resource-test";
+import {TrainingContent} from '@/components/training-content';
+import {eventAlbums} from '@/lib/event-media';
 import { consultationPrice, resourceTestUrl, selectionDescription, whatsappUrl } from "@/lib/site-copy";
 import { defaultPageSeo, personSchema, siteOrigin } from "@/lib/seo";
 import { StructuredData } from "@/components/structured-data";
@@ -24,12 +26,13 @@ type PageConfig = {
 };
 
 const pages: Record<string, PageConfig> = {
+  'nezavershennye-otnosheniya':{eyebrow:'31 октября · начало в 11:00',title:'Незавершённые отношения',lead:'Открытый тренинг: завершение незавершённых отношений и процессов. Участие во всём тренинге или в качестве заместителя.',image:'/images/strategy-20261021.webp'},
   "test-na-resursnost": { eyebrow: "Авторский тест Алёны Савиновой", title: "Тест на ресурсность", lead: "Поймите, на что вы опираетесь сейчас и каким сферам жизни нужно больше внимания.", image: "/images/founder-speaking.jpeg" },
   specialisty: { eyebrow: "Владивосток · онлайн", title: "Специалисты центра", lead: "Команда, которая работает с предпринимателями, руководителями и семьями — внимательно, системно и по существу.", image: "/images/alena-portrait-2.jpg", type: "specialist" },
   uslugi: { eyebrow: "Форматы работы", title: "Программы и услуги", lead: "Стратегические сессии, разбор бизнеса и системная работа — под задачу собственника и его текущую точку.", image: "/images/centre-materials.jpg", type: "program" },
   meropriyatiya: { eyebrow: "Афиша", title: "Ближайшие мероприятия", lead: "Камерные форматы во Владивостоке, где можно разобрать конкретную ситуацию и увидеть следующий шаг.", image: "/images/centre-interior.jpg", type: "event" },
   "arhiv-meropriyatiy": { eyebrow: "Фото · видео · истории", title: "Архив мероприятий", lead: "Прошедшие встречи центра — материалы, атмосфера и важные моменты, к которым можно вернуться.", image: "/images/event-2.jpg" },
-  otzyvy: { eyebrow: "Истории клиентов", title: "Что меняется после работы", lead: "Ясность, спокойствие и решения, которые остаются с человеком после встречи, курса или расстановки.", image: "/images/team-2.jpg", type: "review" },
+  otzyvy: { eyebrow: "Истории клиентов", title: "Что меняется после работы", lead: "Ясность, спокойствие и решения, которые остаются с человеком после встречи, курса или расстановки.", image: "/images/reviews-20261021.webp", type: "review" },
   "socialnye-seti": { eyebrow: "Будем на связи", title: "Социальные сети", lead: "Новости центра, анонсы мероприятий и материалы об устойчивом состоянии собственника.", image: "/images/team-1.jpeg" },
   osnovatel: { eyebrow: "Основатель центра", title: "Алёна Савинова", lead: "Бизнес-наставник с опытом 25 лет, системный семейный психолог, ТВ-эксперт федеральных каналов и автор научного метода.", image: "/images/founder-speaking.jpeg" },
   obrazovanie: { eyebrow: "Опыт и метод", title: "Образование и научная работа", lead: "Системная психология, семейная терапия и авторский метод формирования ресурсных систем личности.", image: "/images/alena-portrait-1.jpg" },
@@ -59,7 +62,8 @@ function Cards({ items, type }: { items: ContentItem[]; type: ContentType }) {
             {type === "review" && <span className="quote-mark">“</span>}
             <h2>{item.title}</h2>
             <p className="card-subtitle">{item.subtitle}</p>
-            <p>{item.body}</p>
+            <p>{item.slug==='nezavershennye-otnosheniya'?item.body.split('\n\n')[0]:item.body}</p>
+            {item.slug==='nezavershennye-otnosheniya'&&<Link href="/nezavershennye-otnosheniya/">Программа и участие →</Link>}
             {type === "specialist" && <p className="specialist-price">{consultationPrice}</p>}
             {type === "specialist" && <span className="interior-card-link">Подробнее о специалисте <ArrowIcon /></span>}
             {type !== "review" && type !== "specialist" && item.slug !== "transformacionnye-igry" && <Link href="/specialisty">Индивидуальный подбор специалиста <ArrowIcon /></Link>}
@@ -92,7 +96,7 @@ function EventsArchiveEntry() {
 }
 
 function EventArchive({ items }: { items: ContentItem[] }) {
-  return <section className="event-archive-grid">{items.map((item) => <article key={item.id} id={item.slug}><div className="event-archive-image"><Image src={item.image} alt={item.title} fill sizes="(max-width: 700px) 100vw, 46vw" /></div><div className="event-archive-copy"><span className="section-label">Прошедшее мероприятие</span><h2>{item.title}</h2><p className="card-subtitle">{item.subtitle}</p><p className="event-archive-description">{item.body.length > 220 ? item.body.slice(0, 220).replace(/\s+\S*$/, "") + "…" : item.body}</p><details><summary>Подробнее о мероприятии</summary><p>{item.body}</p></details></div></article>)}</section>;
+  return <section className="event-archive-grid">{items.map((item) => <article key={item.id} id={item.slug}><div className="event-archive-image"><a href={`/arhiv-meropriyatiy/${item.slug}/`}><Image src={item.image} alt={item.title} fill sizes="(max-width: 700px) 100vw, 46vw" /></a></div><div className="event-archive-copy"><span className="section-label">Прошедшее мероприятие</span><h2>{item.title}</h2><p className="card-subtitle">{item.subtitle}</p><p className="event-archive-description">{item.body.length > 220 ? item.body.slice(0, 220).replace(/\s+\S*$/, "") + "…" : item.body}</p>{eventAlbums.some(a=>a.slug===item.slug)&&<a className="album-card-link" href={`/arhiv-meropriyatiy/${item.slug}/`}>Фото и видео встречи →</a>}</div></article>)}</section>;
 }
 
 
@@ -145,7 +149,7 @@ export default async function InteriorPage({ params }: { params: Promise<{ slug:
     {slug === "osnovatel" && <StructuredData value={personSchema("Алёна Савинова", "osnovatel", "Бизнес-психолог, основатель центра", page.image)} />}
     {slug === "specialisty" && <StructuredData value={specialistProfiles.map((profile) => personSchema(profile.name, `specialisty/${profile.slug}`, profile.role, profile.image))} />}
     {slug === "uslugi" && <StructuredData value={visibleItems.map((item) => ({ "@context": "https://schema.org", "@type": "Service", name: item.title, description: item.body, url: `${siteOrigin}/uslugi/#${item.slug}`, provider: { "@type": "Organization", name: "Путь к себе", "@id": `${siteOrigin}/#organization` } }))} />}
-    {slug === "arhiv-meropriyatiy" ? <section className="archive-page-heading"><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p></section> : <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p>{!document && slug !== "dokumenty" && (slug === "test-na-resursnost" ? <a className="button" href={resourceTestUrl} target="_blank" rel="noreferrer">Пройти тест <ArrowIcon /></a> : <Link className="button" href="/specialisty">Индивидуальный подбор специалиста <ArrowIcon /></Link>)}</div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>}
+    {slug === "arhiv-meropriyatiy" ? <section className="archive-page-heading"><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p></section> : <section className="interior-hero"><div><span className="eyebrow">{page.eyebrow}</span><h1>{page.title}</h1><p>{page.lead}</p>{!document && slug !== "dokumenty" && (slug === "test-na-resursnost" ? <a className="button" href={resourceTestUrl} target="_blank" rel="noreferrer">Пройти тест <ArrowIcon /></a> : <Link className="button" href={slug === "nezavershennye-otnosheniya" ? "#participation" : "/specialisty"}>{slug === "nezavershennye-otnosheniya" ? "Обсудить участие" : "Индивидуальный подбор специалиста"} <ArrowIcon /></Link>)}</div><div className="interior-hero-image"><Image src={page.image} alt="" fill priority sizes="(max-width: 800px) 100vw, 48vw" /></div></section>}
     <div className="interior-body">
       {page.type && slug !== "meropriyatiya" && <Cards items={visibleItems} type={page.type} />}
       {slug === "meropriyatiya" && <><Cards items={upcomingEvents} type="event" /><EventsArchiveEntry /></>}
@@ -155,6 +159,7 @@ export default async function InteriorPage({ params }: { params: Promise<{ slug:
       {slug === "osnovatel" && <><FounderContent /><EducationContent /><ScienceContent /><BookContent /></>}
       {slug === "obrazovanie" && <><EducationContent /><ScienceContent /></>}
       {slug === "test-na-resursnost" && <ResourceTestContent />}
+      {slug === 'nezavershennye-otnosheniya' && <TrainingContent/>}
       {slug === "putksebe" && <CourseContent />}
       {slug === "rassvet-biznesa" && <YachtContent />}
       {slug === "contacts" && <ContactContent />}

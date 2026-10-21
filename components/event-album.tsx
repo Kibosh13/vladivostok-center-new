@@ -1,0 +1,10 @@
+import type { EventAlbum } from '@/lib/event-media';
+
+export function EventAlbumContent({album}: {album: EventAlbum}) {
+  return <>
+    <section className="album-heading"><a className="album-back" href="/arhiv-meropriyatiy/">← Все мероприятия</a><span className="eyebrow">Архив встреч центра</span><h1>{album.title}</h1><p className="album-date">{album.subtitle}</p><p>{album.description}</p><nav className="album-tabs" aria-label="Материалы встречи"><a href="#photos">{album.photos.length} фото</a><a href="#videos">{album.videos.length} видео</a></nav></section>
+    <section className="album-section" id="photos"><div className="album-section-heading"><span className="section-label">В кадре</span><h2>Фотографии встречи</h2><p>Откройте фотографию, чтобы рассмотреть её целиком.</p></div><div className="album-photo-grid">{album.photos.map((src,i)=><a href={src} target="_blank" rel="noreferrer" key={src} aria-label={`Открыть фото ${i+1}: ${album.title}`}><img src={src} alt={`${album.title} — момент встречи ${i+1}`} loading="lazy" width="1200" height="1600"/><span>{String(i+1).padStart(2,'0')} ↗</span></a>)}</div></section>
+    <section className="album-section" id="videos"><div className="album-section-heading"><span className="section-label">Живые моменты</span><h2>Видео встречи</h2><p>Посмотрите атмосферу и фрагменты работы участников.</p></div><div className="album-video-grid">{album.videos.map((video,i)=><figure key={video.src}><video controls playsInline preload="none" poster={video.poster} aria-label={`${album.title} — видео ${i+1}`} width="720" height="1280"><source src={video.src} type="video/mp4"/><a href={video.src}>Открыть видео</a></video><figcaption>Видео {String(i+1).padStart(2,'0')}<span>{video.duration}</span></figcaption></figure>)}</div></section>
+    <section className="album-end"><h2>До встречи в центре</h2><p>Выберите ближайшее мероприятие и присоединяйтесь к нам.</p><a className="button" href="/meropriyatiya/">Ближайшие мероприятия →</a></section>
+  </>;
+}

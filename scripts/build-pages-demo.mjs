@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import ts from "typescript";
 import { editorialHtml } from "./editorial-html.mjs";
 import { bookingHtml } from "./booking-html.mjs";
+import { albumHtml } from './event-media-html.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outArg = process.argv.indexOf("--out");
@@ -39,6 +40,7 @@ const legalTemplates = JSON.parse(await readFile(join(root, "beget/legal-templat
 const { specialistProfiles } = await loadProjectData("lib/specialists.ts");
 const founderData = await loadProjectData("lib/founder.ts");
 const siteCopy = await loadProjectData("lib/site-copy.ts");
+const {eventAlbums} = await loadProjectData('lib/event-media.ts');
 const contentTuples = (type, filter = () => true) => defaultContent
   .filter((item) => item.type === type && item.published && filter(item))
   .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -57,6 +59,8 @@ const reviews = [
 const link = (slug = "") => `${base}${slug ? `${slug}/` : ""}`;
 const esc = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 const editorial = editorialHtml({ base, link, esc, founder: founderData, copy: siteCopy });
+const training = defaultContent.find(i=>i.id==='event-unfinished-relationships');
+const trainingContent = `<section class="training-formats" id="participation"><article><span class="section-label">Участник тренинга</span><h2>Весь день · с 11:00</h2><strong>50 000 ₽</strong><p>Тренинговая и расстановочная части уже включены.</p></article><article><span class="section-label">Заместитель</span><h2>Присоединиться с 16:00</h2><strong>5 000 ₽</strong><p>Открытый формат участия в расстановочной части.</p></article></section><section class="training-details"><h2>О тренинге</h2>${training.body.split('\n\n').map(p=>`<p>${esc(p)}</p>`).join('')}<a class="button" href="tel:+79146658653">Обсудить участие · +7 914 665-86-53</a></section>`;
 
 function header() {
   return `<header class="site-header">
@@ -122,21 +126,25 @@ function home() {
 }
 
 function cards(items, kind) {
-  return `<section class="interior-grid ${kind === "review" ? "review-cards" : ""} ${kind === "event" ? "event-cards" : ""} ${kind === "program" ? "program-cards" : ""}">${items.map(([title, subtitle, text, image, slug]) => { const card = `<article class="interior-card" id="${esc(slug)}">${image ? `<div class="interior-card-image"><img src="${base}images/${image}" alt="${esc(title)}"></div>` : ""}<div class="interior-card-copy">${kind === "review" ? `<span class="quote-mark">“</span>` : ""}<h2>${title}</h2><p class="card-subtitle">${subtitle}</p><p>${text}</p>${kind === "specialist" ? `<p class="specialist-price">${siteCopy.consultationPrice}</p>` : ""}${kind === "specialist" ? `<span class="interior-card-link">Подробнее о специалисте →</span>` : kind === "review" || slug === "transformacionnye-igry" ? "" : `<a href="${link("contacts")}">Индивидуальный подбор специалиста →</a>`}</div></article>`; return kind === "specialist" ? `<a class="interior-card-wrapper" href="${link(`specialisty/${slug}`)}">${card}</a>` : `<div class="interior-card-wrapper">${card}</div>`; }).join("")}</section>`;
+  return `<section class="interior-grid ${kind === 'review' ? 'review-cards' : kind === 'event' ? 'event-cards' : kind === 'program' ? 'program-cards' : ''}">${items.map(([title,subtitle,text,image,slug])=>{
+    const training=slug==='nezavershennye-otnosheniya';
+    const card=`<article class="interior-card" id="${esc(slug)}">${image?`<div class="interior-card-image"><img src="${base}images/${image}" alt="${esc(title)}"></div>`:''}<div class="interior-card-copy">${kind==='review'?'<span class="quote-mark">“</span>':''}<h2>${esc(title)}</h2><p class="card-subtitle">${esc(subtitle)}</p><p>${esc(training?text.split('\n\n')[0]:text)}</p>${training?`<a class="album-card-link" href="${link(slug)}">Программа и участие →</a>`:''}${kind==='specialist'?`<p class="specialist-price">${siteCopy.consultationPrice}</p><span class="interior-card-link">Подробнее о специалисте →</span>`:kind==='review'||slug==='transformacionnye-igry'||training?'':`<a href="${link('specialisty')}">Индивидуальный подбор специалиста →</a>`}</div></article>`;
+    return kind==='specialist'?`<a class="interior-card-wrapper" href="${link(`specialisty/${slug}`)}">${card}</a>`:`<div class="interior-card-wrapper">${card}</div>`;
+  }).join('')}</section>`;
 }
 
 const twoGisReviewsUrl = "https://2gis.ru/vladivostok/search/%D0%9F%D1%83%D1%82%D1%8C%20%D0%BA%20%D1%81%D0%B5%D0%B1%D0%B5%20%D0%91%D0%B5%D1%81%D1%82%D1%83%D0%B6%D0%B5%D0%B2%D0%B0%2021%D0%91";
 const reviewsExternal = `<section class="external-reviews"><div><span class="section-label">Независимые отзывы</span><h2>Отзывы о центре в 2ГИС</h2><p>Откройте карточку центра, чтобы прочитать отзывы клиентов и поделиться своим впечатлением.</p></div><a class="button button-light" href="${twoGisReviewsUrl}">Открыть отзывы в 2ГИС →</a></section>`;
 const socialSection = `<section class="social-networks"><span class="section-label">Социальные сети</span><h2>Следите за центром</h2><div><a href="https://t.me/centre_pathtoyourself"><strong>Telegram</strong><span>Новости и анонсы центра</span>→</a><a href="https://max.ru/"><strong>MAX</strong><span>+7 914 665-86-53</span>→</a><a href="https://vk.ru/putkseberu"><strong>ВКонтакте</strong><span>Материалы, события и общение</span>→</a><a href="https://www.instagram.com/itc.put_k_sebe"><strong>Instagram</strong><span>Жизнь центра и короткие заметки</span>→</a></div></section>`;
 const archiveEntry = `<section class="events-archive-entry"><div><span class="section-label">Прошедшие встречи</span><h2>Архив мероприятий</h2><p>Мастер-классы, встречи и практики центра, к которым можно вернуться.</p></div><a class="button button-light" href="${link("arhiv-meropriyatiy")}">Открыть архив →</a></section>`;
-const archiveContent = `<section class="event-archive-grid">${archivedEvents.map(([title, subtitle, text, image, slug]) => `<article id="${esc(slug)}"><div class="event-archive-image"><img src="${base}images/${image}" alt="${esc(title)}"></div><div class="event-archive-copy"><span class="section-label">Прошедшее мероприятие</span><h2>${esc(title)}</h2><p class="card-subtitle">${esc(subtitle)}</p><p class="event-archive-description">${esc(text.length > 220 ? text.slice(0,220).replace(/\s+\S*$/,"") + "…" : text)}</p><details><summary>Подробнее о мероприятии</summary><p>${esc(text)}</p></details></div></article>`).join("")}</section>`;
+const archiveContent = `<section class="event-archive-grid">${archivedEvents.map(([title, subtitle, text, image, slug]) => `<article id="${esc(slug)}"><div class="event-archive-image"><a href="${link(`arhiv-meropriyatiy/${slug}`)}" aria-label="${esc(title)} — фото и видео"><img src="${base}images/${image}" alt="${esc(title)}"></a></div><div class="event-archive-copy"><span class="section-label">Прошедшее мероприятие</span><h2>${esc(title)}</h2><p class="card-subtitle">${esc(subtitle)}</p><p class="event-archive-description">${esc(text.length > 220 ? text.slice(0,220).replace(/\s+\S*$/,"") + "…" : text)}</p><a class="album-card-link" href="${link(`arhiv-meropriyatiy/${slug}`)}">Фото и видео встречи →</a></div></article>`).join("")}</section>`;
 
 function interior({ slug, eyebrow, title, lead, image, content }) {
   if (slug === "contacts") {
     title = "Контакты и социальные сети";
     content = `<section class="contact-page-grid"><div class="contact-details"><span class="section-label">Мы рядом</span><h2>Центр «Путь к себе»</h2><p>${icon("utility-phone")}<a href="tel:+79146658653">+7 914 665-86-53</a></p><p>${icon("utility-location")}<span>Владивосток, ул. Бестужева, 21Б, этаж 2</span></p><p>${icon("utility-send")}<a href="${siteCopy.whatsappUrl}" target="_blank" rel="noreferrer">WhatsApp</a> · <a href="tg://resolve?phone=79146658653">Telegram</a></p><p class="contact-muted">Работаем очно во Владивостоке и онлайн с клиентами по всему миру.</p></div><div class="selection-coffee-card"><h2>${siteCopy.selectionLabel}</h2><p>${siteCopy.selectionDescription}</p><a class="button" href="${link("specialisty")}">Посмотреть специалистов →</a></div></section>${socialSection}`;
   }
-  const hero = slug === "arhiv-meropriyatiy" ? `<section class="archive-page-heading"><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${lead}</p></section>` : `<section class="interior-hero"><div><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${lead}</p>${slug === "test-na-resursnost" ? '<!--TEST_ACTION-->' : `<a class="button" href="${link("specialisty")}">${siteCopy.selectionLabel} →</a>`}</div><div class="interior-hero-image"><img src="${base}images/${image}" alt=""></div></section>`;
+  const hero = slug === "arhiv-meropriyatiy" ? `<section class="archive-page-heading"><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${lead}</p></section>` : `<section class="interior-hero"><div><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${lead}</p>${slug === "nezavershennye-otnosheniya" ? `<a class="button" href="#participation">Обсудить участие →</a>` : slug === "test-na-resursnost" ? '<!--TEST_ACTION-->' : `<a class="button" href="${link("specialisty")}">${siteCopy.selectionLabel} →</a>`}</div><div class="interior-hero-image"><img src="${base}images/${image}" alt=""></div></section>`;
   const body = `<main>${header()}${hero}<div class="interior-body">${content}</div>${footer()}</main>`;
   const schema = slug === "osnovatel" ? {"@context":"https://schema.org","@type":"Person",name:"Алёна Савинова",url:`${origin}/osnovatel/`,jobTitle:"Основатель центра «Путь к себе»",worksFor:{"@id":`${origin}/#organization`,"@type":"Organization",name:"Путь к себе"}} : slug === "uslugi" ? {"@context":"https://schema.org","@graph":programs.map(([name,,description,,id])=>({"@type":"Service",name,description,url:`${origin}/uslugi/#${id}`,provider:{"@id":`${origin}/#organization`,"@type":"Organization",name:"Путь к себе"}}))} : slug === "specialisty" ? {"@context":"https://schema.org","@graph":specialistProfiles.map(profile=>({"@type":"Person",name:profile.name,jobTitle:profile.role,url:`${origin}/specialisty/${profile.slug}/`,image:`${origin}${profile.image}`,worksFor:{"@id":`${origin}/#organization`,"@type":"Organization",name:"Путь к себе"}}))} : null;
   return [slug, layout(title, body, lead, slug, schema)];
@@ -157,11 +165,12 @@ function specialistPage(profile) {
 
 const pages = [
   ["index", home()],
+  interior({slug:'nezavershennye-otnosheniya',eyebrow:'31 октября · начало в 11:00',title:'Незавершённые отношения',lead:'Открытый тренинг: завершение незавершённых отношений и процессов. Участие во всём тренинге или в качестве заместителя.',image:'strategy-20261021.webp',content:trainingContent}),
   interior({slug:"specialisty", eyebrow:"Владивосток · онлайн", title:"Специалисты центра", lead:"Команда, которая работает с предпринимателями, руководителями и семьями — внимательно, системно и по существу.", image:"alena-portrait-2.jpg", content:cards(specialists,"specialist")}),
   interior({slug:"uslugi", eyebrow:"Форматы работы", title:"Программы и услуги", lead:"Стратегические сессии, разбор бизнеса и системная работа — под задачу собственника и его текущую точку.", image:"centre-materials.jpg", content:cards(programs,"program")}),
   interior({slug:"meropriyatiya", eyebrow:"Афиша", title:"Ближайшие мероприятия", lead:"Камерные форматы во Владивостоке, где можно разобрать конкретную ситуацию и увидеть следующий шаг.", image:"centre-interior.jpg", content:cards(events,"event") + archiveEntry}),
   interior({slug:"arhiv-meropriyatiy", eyebrow:"Фото · видео · истории", title:"Архив мероприятий", lead:"Прошедшие встречи центра — материалы, атмосфера и важные моменты, к которым можно вернуться.", image:"event-2.jpg", content:archiveContent}),
-  interior({slug:"otzyvy", eyebrow:"Истории клиентов", title:"Что меняется после работы", lead:"Ясность, спокойствие и решения, которые остаются с человеком после встречи, курса или расстановки.", image:"team-2.jpg", content:cards(reviews,"review") + reviewsExternal}),
+  interior({slug:"otzyvy", eyebrow:"Истории клиентов", title:"Что меняется после работы", lead:"Ясность, спокойствие и решения, которые остаются с человеком после встречи, курса или расстановки.", image:"reviews-20261021.webp", content:cards(reviews,"review") + reviewsExternal}),
   interior({slug:"socialnye-seti", eyebrow:"Будем на связи", title:"Социальные сети", lead:"Новости центра, анонсы мероприятий и материалы об устойчивом состоянии собственника.", image:"team-1.jpeg", content:socialSection}),
   interior({slug:"osnovatel", eyebrow:"Основатель центра", title:"Алёна Савинова", lead:"Бизнес-наставник с опытом 25 лет, системный семейный психолог, ТВ-эксперт федеральных каналов и автор научного метода.", image:"founder-speaking.jpeg", content:editorial.biography + editorial.education + editorial.science + editorial.book}),
   interior({slug:"obrazovanie", eyebrow:"Опыт и метод", title:"Образование и научная работа", lead:"Системная психология, семейная терапия и авторский метод формирования ресурсных систем личности.", image:"alena-portrait-1.jpg", content:editorial.education + editorial.science}),
@@ -170,11 +179,13 @@ const pages = [
   interior({slug:"dokumenty", eyebrow:"Документы центра", title:"Документы и условия", lead:"Условия работы центра, оформления услуг и обработки персональных данных.", image:"centre-interior.jpg", content:serverForms ? '<!--DOCUMENT_LIST-->' : `<section class="legal-documents-list">${legalDocumentDefinitions.map((doc)=>`<a href="${link(doc.slug)}"><span>${esc(doc.title)}</span><span>→</span></a>`).join("")}</section>`}),
   ...legalDocumentDefinitions.map(doc => interior({slug:doc.slug,eyebrow:"Документы центра",title:doc.title,lead:"Условия работы центра и обращения с данными.",image:"centre-interior.jpg",content:serverForms ? '<!--LEGAL_BODY-->' : `<div class="legal-document-text">${esc(legalTemplates.documents[doc.slug].body.replace(/\{\{([a-z_]+)\}\}/g,(_,key)=>legalTemplates.fields[key].default || "—"))}</div>`})),
   ...specialistProfiles.map(specialistPage),
+  ...eventAlbums.map(album=>[`arhiv-meropriyatiy/${album.slug}`,layout(`${album.title}: фото и видео`,`<main>${header()}${albumHtml({album,base,link,esc})}${footer()}</main>`,album.description,`arhiv-meropriyatiy/${album.slug}`)]),
 ].filter(([slug]) => slug !== "socialnye-seti");
 
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(join(root, "public", "images"), join(output, "images"), { recursive: true });
+await cp(join(root, 'public', 'videos'), join(output, 'videos'), {recursive:true});
 await cp(join(root, "public", "favicon.svg"), join(output, "favicon.svg"));
 
 let css = await readFile(join(root, "app", "globals.css"), "utf8");

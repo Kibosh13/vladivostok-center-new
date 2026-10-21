@@ -1,5 +1,10 @@
 (() => {
   if (document.body.dataset.siteTarget !== 'beget') return;
+  // Never expose form contents to counters, including account-side automatic form analytics.
+  document.querySelectorAll('form').forEach(form => {
+    form.classList.add('ym-disable-submit', 'ym-hide-content');
+    form.querySelectorAll('input, textarea').forEach(field => field.classList.add('ym-disable-keys'));
+  });
   const forms = [...document.querySelectorAll('[data-booking-form]')];
   let status;
   const loadStatus = () => fetch('/api/form-status', { credentials: 'same-origin', cache: 'no-store' })
@@ -40,12 +45,37 @@
       finally { sending = false; fieldset.disabled = false; }
     });
   });
-  const cookieChoiceKey = 'ps-cookie-choice-v2', cookieVersion = '2026-10-14.1';
+  const cookieChoiceKey = 'ps-cookie-choice-v2', cookieVersion = '2026-10-21.1';
+  const counterId = 109918800;
+  let analyticsStarted = false;
+  const enableAnalytics = () => {
+    if (analyticsStarted || location.hostname !== 'putksebevladivostok.ru') return;
+    analyticsStarted = true;
+    window.ym = window.ym || function () { (window.ym.a = window.ym.a || []).push(arguments); };
+    window.ym.l = Date.now();
+    const tag = document.createElement('script'); tag.async = true;
+    tag.src = 'https://mc.yandex.ru/metrika/tag.js?id=' + counterId;
+    document.head.append(tag);
+    let referrer = ''; try { referrer = document.referrer ? new URL(document.referrer).origin : ''; } catch (_) { /* Ignore an invalid referrer. */ }
+    window.ym(counterId, 'init', {ssr:true, webvisor:false, clickmap:true, ecommerce:false,
+      url:location.origin + location.pathname, referrer, accurateTrackBounce:true, trackLinks:true});
+  };
+  const disableAnalytics = () => {
+    if (!analyticsStarted) return;
+    window.ym?.(counterId, 'destruct'); analyticsStarted = false;
+    document.querySelectorAll('script[src^="https://mc.yandex.ru/metrika/"]').forEach(tag => tag.remove());
+    for (const item of document.cookie.split(';')) {
+      const name = item.split('=')[0].trim(); if (!name.startsWith('_ym_')) continue;
+      for (const domain of ['', '; domain=putksebevladivostok.ru', '; domain=.putksebevladivostok.ru']) {
+        document.cookie = name + '=; Max-Age=0; path=/; SameSite=Lax; Secure' + domain;
+      }
+    }
+  };
   const openCookieChoice = () => {
     if (document.querySelector('.cookie-notice')) return;
       const notice = document.createElement('aside'); notice.className = 'cookie-notice';
       notice.setAttribute('aria-label', 'Использование cookies');
-      const text = document.createElement('p'); text.append('Сайт собирает и обрабатывает cookies для корректной работы. Просим ваше согласие на их использование. Подробнее — в ');
+      const text = document.createElement('p'); text.append('Сайт собирает и обрабатывает cookies для своей работы и анализа посещаемости с помощью Яндекс Метрики. Просим согласие на их использование. Подробнее — в ');
       const link = document.createElement('a'); link.href = '/cookies/'; link.textContent = 'условиях использования cookies';
       const privacy = document.createElement('a'); privacy.href = '/privacy/'; privacy.textContent = 'политике обработки данных';
       text.append(link, ' и ', privacy, '.');
@@ -54,7 +84,8 @@
         const button = document.createElement('button'); button.type = 'button'; button.textContent = label;
         button.addEventListener('click', () => {
           try { localStorage.setItem(cookieChoiceKey, JSON.stringify({ choice, version: cookieVersion, at: Date.now() })); } catch (_) { /* Choice still applies to the current page. */ }
-          // This version has no optional trackers. A choice never grants consent for a form or advertising.
+          if (choice === 'accepted') enableAnalytics(); else disableAnalytics();
+          // Analytics consent never grants consent for a form or advertising.
           notice.remove();
         });
         actions.append(button);
@@ -68,5 +99,5 @@
   if (!cookieChoice || cookieChoice.version !== cookieVersion || !['accepted', 'necessary'].includes(cookieChoice.choice)
     || !Number.isFinite(cookieChoice.at) || Date.now() - cookieChoice.at > 183 * 86400000 || cookieChoice.at > Date.now()) {
     openCookieChoice();
-  }
+  } else if (cookieChoice.choice === 'accepted') enableAnalytics();
 })();
