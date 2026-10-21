@@ -1724,6 +1724,64 @@ a:focus-visible, button:focus-visible { outline: 2px solid #9d6d43; outline-offs
 .specialist-booking h2 { margin: 14px 0 24px; color: #7d0b24; font: 400 clamp(32px, 3vw, 46px)/1.1 var(--font-display); }
 .booking-fields { grid-column: 1 / -1; border: 0; padding: 0; margin: 18px 0 0; min-width: 0; display: grid; gap: 16px; }
 .booking-form [data-booking-result] { grid-column: 1 / -1; }
+
+/* Event albums and a comfortable reading scale, October 2026. */
+.header-city { font-size: 18px; }
+.site-header .main-nav, .home-reference .main-nav { font-size: 17px; }
+.site-header .main-nav a, .mobile-nav nav a { padding-block: 9px; }
+.home-reference .section-label, .section-label, .home-reference .eyebrow, .eyebrow { font-size: 14px; }
+.footer-bottom, .home-reference .footer-bottom, .form-note, .booking-form-heading p { font-size: 16px; line-height: 1.6; }
+.home-reference .program-card-copy a, .interior-card-copy > a, .home-reference .specialist-card-more { font-size: 18px; }
+.home-reference .hero-play b { font-size: 16px; }
+.home-reference .featured-review footer, .home-reference .review-stack footer { font-size: 16px; line-height: 1.55; }
+.cookie-notice { font-size: 16px; }
+.event-archive-image a { display:block; width:100%; height:100%; }
+.album-card-link { display:inline-flex; color:#7d0b24; font-weight:600; margin-top:14px; font-size:18px; line-height:1.5; }
+.album-heading { padding:46px clamp(20px,6vw,116px) 42px; background:#f1e8e1; }
+.album-heading .eyebrow { display:block; margin-top:32px; }
+.album-back { color:#7d0b24; font-size:17px; text-decoration:underline; text-underline-offset:5px; }
+.album-heading h1 { max-width:1100px; margin:18px 0; color:#7d0b24; font:400 clamp(38px,5vw,74px)/1.05 var(--font-display); }
+.album-heading > p { max-width:820px; font-size:20px; line-height:1.65; color:#6d605b; }
+.album-heading .album-date { color:#7d0b24; font-size:18px; }
+.album-tabs { display:flex; gap:12px; margin-top:28px; }
+.album-tabs a { padding:12px 24px; border:1px solid #d5bfb2; border-radius:40px; color:#7d0b24; background:#fff9f4; font-size:17px; }
+.album-section { padding:54px clamp(20px,6vw,116px); scroll-margin-top:25px; }
+.album-section-heading { margin-bottom:28px; }
+.album-section-heading h2, .album-end h2, .training-details h2 { color:#7d0b24; margin:12px 0; font:400 clamp(30px,3.2vw,48px)/1.12 var(--font-display); }
+.album-section-heading p { color:#6d605b; line-height:1.6; font-size:18px; }
+.album-photo-grid, .album-video-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
+.album-photo-grid > a { display:block; position:relative; border-radius:14px; overflow:hidden; background:#e7d9cd; aspect-ratio:3/4; }
+.album-photo-grid img { width:100%; height:100%; display:block; object-fit:cover; transition:transform .35s ease; }
+.album-photo-grid a:hover img { transform:scale(1.025); }
+.album-photo-grid a > span { position:absolute; bottom:14px; right:14px; padding:8px 12px; background:#fffdfbe8; color:#7d0b24; border-radius:30px; font-size:15px; }
+.album-video-grid figure { margin:0; border:1px solid #ded0c5; background:#fffdfb; border-radius:14px; overflow:hidden; min-width:0; }
+.album-video-grid video { display:block; width:100%; height:auto; aspect-ratio:9/16; object-fit:contain; background:#211a18; }
+.album-video-grid figcaption { display:flex; justify-content:space-between; gap:12px; padding:18px 20px; color:#7d0b24; font-size:17px; }
+.album-video-grid figcaption span { color:#79675d; }
+.album-end { margin:20px clamp(20px,6vw,116px) 64px; padding:38px; border:1px solid #decbbf; border-radius:16px; background:#f2e6dd; }
+.album-end p { font-size:19px; line-height:1.6; color:#6d605b; }
+.training-formats { display:grid; grid-template-columns:1fr 1fr; gap:24px; padding:35px clamp(20px,6vw,116px); }
+.training-formats article { border:1px solid #decec3; border-radius:16px; padding:28px; background:#fffdfb; }
+.training-formats h2 { font:400 32px/1.15 var(--font-display); color:#7d0b24; }
+.training-formats strong { display:block; color:#7d0b24; font-size:28px; margin-block:18px; }
+.training-formats p, .training-details p { font-size:19px; line-height:1.7; color:#6d605b; }
+.training-details { max-width:1100px; padding:28px clamp(20px,6vw,80px) 64px; margin:auto; }
+.training-details p { white-space:pre-line; }
+@media(max-width:800px) {
+  .album-photo-grid, .album-video-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+  .header-city { font-size:16px; }
+  .site-header .main-nav, .home-reference .main-nav, .mobile-nav nav { font-size:19px; }
+  .album-heading > p { font-size:18px; }
+}
+@media(max-width:600px) {
+  .album-heading { padding-top:30px; }
+  .album-photo-grid, .album-video-grid, .training-formats { grid-template-columns:1fr; }
+  .album-section { padding-block:38px; }
+  .album-end { padding:26px; }
+  .album-photo-grid > a { aspect-ratio:auto; }
+  .album-photo-grid img { height:auto; object-fit:contain; }
+  .site-header .main-nav a { min-height:44px; }
+}
 .booking-fields label { display: grid; gap: 7px; font-size: 16px; }
 .booking-fields input:not([type=checkbox]), .booking-fields textarea { width: 100%; min-width: 0; padding: 13px 15px; border: 1px solid #d7c5bb; background: #fffdfb; border-radius: 6px; font: inherit; color: #362b27; }
 .booking-fields:disabled { opacity: .6; }
