@@ -168,7 +168,7 @@ function specialistPage(profile) {
 const pages = [
   ["index", home()],
   interior({slug:'nezavershennye-otnosheniya',eyebrow:'31 октября · начало в 11:00',title:'Незавершённые отношения',lead:'Открытый тренинг: завершение незавершённых отношений и процессов. Участие во всём тренинге или в качестве заместителя.',image:'strategy-20261021.webp',content:trainingContent}),
-  interior({slug:"specialisty", eyebrow:"Владивосток · онлайн", title:"Специалисты центра", lead:"Команда, которая работает с предпринимателями, руководителями и семьями — внимательно, системно и по существу.", image:"alena-portrait-2.jpg", content:cards(specialists,"specialist")}),
+  interior({slug:"specialisty", eyebrow:"Владивосток · онлайн", title:"Специалисты центра", lead:"Команда, которая работает с предпринимателями, руководителями и лидерами — внимательно, системно и по существу.", image:"alena-portrait-2.jpg", content:cards(specialists,"specialist")}),
   interior({slug:"uslugi", eyebrow:"Форматы работы", title:"Программы и услуги", lead:"Стратегические сессии, разбор бизнеса и системная работа — под задачу собственника и его текущую точку.", image:"centre-materials.jpg", content:cards(programs,"program")}),
   interior({slug:"meropriyatiya", eyebrow:"Афиша", title:"Ближайшие мероприятия", lead:"Камерные форматы во Владивостоке, где можно разобрать конкретную ситуацию и увидеть следующий шаг.", image:"centre-interior.jpg", content:cards(events,"event") + archiveEntry}),
   interior({slug:"arhiv-meropriyatiy", eyebrow:"Фото · видео · истории", title:"Архив мероприятий", lead:"Прошедшие встречи центра — материалы, атмосфера и важные моменты, к которым можно вернуться.", image:"event-2.jpg", content:archiveContent}),

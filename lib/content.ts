@@ -49,7 +49,7 @@ export const defaultContent: ContentItem[] = [
   {
     id: "program-strategy", type: "program", slug: "strategicheskaya-sessiya", title: "Стратегическая сессия", subtitle: "Онлайн или офлайн · 1,5 часа",
     body: "Для собственников и руководителей, которым нужен ясный план перехода из точки А в точку Б. Формат и продолжительность программы подбираются под задачу.",
-    image: "/images/strategy-20261021.webp", meta: JSON.stringify({ category: "Состояние собственника" }), sortOrder: 10, published: true,
+    image: "/images/strategy-20261023.webp", meta: JSON.stringify({ category: "Состояние собственника" }), sortOrder: 10, published: true,
   },
   {
     id: "program-business-review", type: "program", slug: "razbor-biznesa", title: "Разбор бизнеса", subtitle: "Совместный поиск точки роста",

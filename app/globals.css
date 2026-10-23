@@ -1678,6 +1678,20 @@ a:focus-visible, button:focus-visible { outline: 2px solid #9d6d43; outline-offs
 .home-reference .footer-nav, .footer-nav, .footer-contact { font-size: 15px; }
 .home-reference .footer-bottom, .footer-bottom { font-size: 13px; }
 .program-card .program-image { display: block; width: 100%; }
+/* Program photographs stay complete at every viewport, including on hover. */
+.program-grid, .program-cards { align-items: start; }
+.program-card .program-image, .home-reference .program-image,
+.program-cards .interior-card-image { height: auto; }
+.program-card .program-image > img,
+.program-cards .interior-card-image > img {
+  display: block;
+  position: static !important;
+  inset: auto !important;
+  width: 100%;
+  height: auto !important;
+  object-fit: contain;
+  transform: none !important;
+}
 .founder-spotlight-copy h2 { font-size: clamp(34px, 3vw, 46px); line-height: 1.12; letter-spacing: -.025em; }
 .founder-spotlight-facts a { padding: 11px 15px; border: 1px solid rgba(125,11,36,.2); border-radius: 999px; color: #7d0b24; background: #faf3ef; font-size: 16px; }
 .founder-spotlight-facts a:hover { background: #f0e2dc; }
