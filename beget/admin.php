@@ -2,11 +2,16 @@
 declare(strict_types=1);
 if (!defined('PS_BOOTSTRAPPED')) { http_response_code(404); exit; }
 header('Content-Type: text/html; charset=utf-8'); header('Cache-Control: no-store'); header('X-Robots-Tag: noindex, nofollow');
-header("Content-Security-Policy: default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'none'; frame-src 'self'; form-action 'self'");
 ps_session();
 $cfg = ps_json_read('config');
 $message = '';
 $isAdmin = ps_is_admin();
+if ($isAdmin && trim(parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH),'/') === 'admin/instruction') {
+    $guide=__DIR__.'/.admin-instruction.pdf';
+    if(is_file($guide)){header('Content-Type: application/pdf');header('Content-Disposition: inline; filename="put-k-sebe-admin-guide.pdf"');readfile($guide);exit;}
+    $message='PDF-инструкция пока не загружена. Основные шаги доступны в разделе «Помощь».';
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!ps_csrf_ok((string)($_POST['csrf'] ?? ''))) { http_response_code(403); $message = 'Обновите страницу: проверка безопасности не пройдена.'; }
     else {
@@ -23,15 +28,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $cfg['admin'] = ['username' => $username, 'password_hash' => password_hash($password, PASSWORD_DEFAULT)];
                 unset($cfg['setup_hash']); ps_json_write('config', $cfg); session_regenerate_id(true);
                 if (is_file(PS_PRIVATE . '/activation-code.txt')) unlink(PS_PRIVATE . '/activation-code.txt');
-                $_SESSION['admin'] = $username; $_SESSION['admin_at'] = time(); $isAdmin = true;
+                $_SESSION['admin'] = $username; $_SESSION['admin_at'] = time(); $_SESSION['admin_fingerprint']=hash('sha256',$cfg['admin']['password_hash']); $isAdmin = true;
                 $message = 'Админ-панель активирована. Одноразовый код больше не действует.';
             } elseif ($action === 'login') {
                 if (!ps_rate_limit('login', 10, 900)) throw new RuntimeException('Слишком много попыток. Повторите позже.');
                 if (empty($cfg['admin']) || !hash_equals($cfg['admin']['username'], (string)($_POST['username'] ?? '')) || !password_verify((string)($_POST['password'] ?? ''), $cfg['admin']['password_hash'])) throw new RuntimeException('Проверьте логин и пароль.');
-                session_regenerate_id(true); $_SESSION['admin'] = $cfg['admin']['username']; $_SESSION['admin_at'] = time(); $isAdmin = true;
+                session_regenerate_id(true); $_SESSION['admin'] = $cfg['admin']['username']; $_SESSION['admin_at'] = time(); $_SESSION['admin_fingerprint']=hash('sha256',$cfg['admin']['password_hash']); $isAdmin = true;
             } elseif ($action === 'logout' && $isAdmin) {
                 $_SESSION = []; session_regenerate_id(true); $isAdmin = false;
             } elseif (!$isAdmin) { http_response_code(401); throw new RuntimeException('Требуется вход.'); }
+            elseif ($action==='account_password') {
+                if(!ps_rate_limit('admin-password',5,900))throw new RuntimeException('Слишком много попыток смены пароля. Повторите позже.');
+                $password=(string)($_POST['new_password']??'');
+                if(!password_verify((string)($_POST['current_password']??''),$cfg['admin']['password_hash']))throw new RuntimeException('Текущий пароль указан неверно.');
+                if(strlen($password)<14||strlen($password)>200||!hash_equals($password,(string)($_POST['repeat_password']??'')))throw new RuntimeException('Новый пароль: от 14 до 200 символов. Повтор должен совпадать.');
+                $cfg['admin']['password_hash']=password_hash($password,PASSWORD_DEFAULT);ps_json_write('config',$cfg);session_regenerate_id(true);$_SESSION['admin_fingerprint']=hash('sha256',$cfg['admin']['password_hash']);
+                $message='Пароль изменён. В остальных браузерах потребуется повторный вход. Подключение amoCRM не изменялось.';
+            }
+            elseif (str_starts_with($action, 'cms_')) { $message = $action === 'cms_upload' ? ps_cms_upload() : ps_cms_action($action); }
             elseif ($action === 'document') {
                 $slug = (string)($_POST['slug'] ?? '');
                 if (!isset($manifest['documents'][$slug])) throw new RuntimeException('Неизвестный документ.');
@@ -85,10 +99,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 $content = ps_json_read('content', ['documents' => [], 'seo' => [], 'resourceTestUrl' => '']);
-$tab = in_array($_GET['tab'] ?? '', ['seo', 'settings', 'leads'], true) ? $_GET['tab'] : 'documents';
+$tab = in_array($_GET['tab'] ?? '', ['overview','pages','global','media','history','help','documents','seo','settings','leads'], true) ? $_GET['tab'] : 'overview';
 $csrf = ps_escape($_SESSION['csrf']);
+$cmsAssetVersion=substr(hash('sha256',hash_file('sha256',__DIR__.'/beget-admin.css').hash_file('sha256',__DIR__.'/beget-admin.js')),0,12);
 function ps_admin_csrf(): void { echo '<input type="hidden" name="csrf" value="' . ps_escape($_SESSION['csrf']) . '">'; }
-?><!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Управление сайтом — Путь к себе</title><link rel="stylesheet" href="/site.css"><link rel="stylesheet" href="/beget-admin.css"><link rel="icon" href="/favicon.svg"></head><body class="cms-body">
+?><!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Управление сайтом — Путь к себе</title><link rel="stylesheet" href="/site.css"><link rel="stylesheet" href="/beget-admin.css?v=<?= $cmsAssetVersion ?>"><script defer src="/beget-admin.js?v=<?= $cmsAssetVersion ?>"></script><link rel="icon" href="/favicon.svg"></head><body class="cms-body">
 <main class="cms-shell"><header class="cms-header"><a href="/"><img src="/images/brand/logo-put-k-sebe.png" alt="Путь к себе" width="160" height="86"></a><div><span class="section-label">Путь к себе · CMS</span><h1>Управление сайтом</h1></div><a href="/" target="_blank">Открыть сайт →</a></header>
 <?php if ($message !== ''): ?><p class="cms-message" role="status"><?= ps_escape($message) ?></p><?php endif; ?>
 <?php if (!$isAdmin): ?>
@@ -98,8 +113,9 @@ function ps_admin_csrf(): void { echo '<input type="hidden" name="csrf" value="'
 <label>Логин<input name="username" autocomplete="username" minlength="3" maxlength="60" required></label><label>Пароль<input type="password" name="password" autocomplete="<?= empty($cfg['admin']) ? 'new-password' : 'current-password' ?>" minlength="<?= empty($cfg['admin']) ? '14' : '1' ?>" required></label>
 <button class="button" type="submit"><?= empty($cfg['admin']) ? 'Активировать' : 'Войти' ?></button></form></section>
 <?php else: ?>
-<nav class="cms-tabs"><a href="/admin/" <?= $tab === 'documents' ? 'aria-current="page"' : '' ?>>Документы</a><a href="/admin/?tab=seo" <?= $tab === 'seo' ? 'aria-current="page"' : '' ?>>SEO</a><a href="/admin/?tab=settings" <?= $tab === 'settings' ? 'aria-current="page"' : '' ?>>Тест и amoCRM</a><a href="/admin/?tab=leads" <?= $tab === 'leads' ? 'aria-current="page"' : '' ?>>Заявки сайта</a><form method="post" action="/admin/"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="logout"><button type="submit">Выйти</button></form></nav>
-<?php if ($tab === 'documents'): ?>
+<nav class="cms-tabs" aria-label="Разделы управления"><?php foreach(['overview'=>'Обзор','pages'=>'Страницы и контент','global'=>'Общие элементы','media'=>'Медиатека','documents'=>'Документы','seo'=>'SEO','leads'=>'Заявки','history'=>'История','settings'=>'Тест и amoCRM','help'=>'Помощь'] as $key=>$label): ?><a href="/admin/?tab=<?= $key ?>" <?= $tab === $key ? 'aria-current="page"' : '' ?>><?= $label ?></a><?php endforeach; ?><form method="post" action="/admin/"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="logout"><button type="submit">Выйти</button></form></nav>
+<?php if (in_array($tab,['overview','pages','global','media','history','help'],true)): require __DIR__.'/beget-editor-ui.php'; ?>
+<?php elseif ($tab === 'documents'): ?>
 <section class="cms-panel"><h2>Готовые тексты документов</h2><p>Семь документов уже подготовлены. Здесь заполняются только неизвестные реквизиты и условия, а не весь текст. Общие сведения автоматически подставляются во все документы. Приём заявок включён по решению владельца независимо от статуса документов; отдельное согласие посетителя обязательно. Перед полноценным использованием сайта заполните реквизиты и проверьте тексты. Незаполненные сведения в публичных текстах обозначены прочерком; это не утверждённые владельцем документы.</p>
 <details class="cms-document" open><summary>Реквизиты и недостающие условия</summary><form method="post" action="/admin/"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="legal_fields"><input type="hidden" name="revision" value="<?= ps_escape(hash('sha256', json_encode($content['legalFields'] ?? []))) ?>"><div class="cms-legal-fields">
 <?php $legalValues = ps_legal_values($content); foreach ($manifest['legal']['fields'] as $key => $field): ?><label><?= ps_escape($field['label']) ?><?php if ($field['type'] === 'textarea'): ?><textarea name="fields[<?= ps_escape($key) ?>]" rows="3" maxlength="8000"><?= ps_escape($legalValues[$key]) ?></textarea><?php else: ?><input name="fields[<?= ps_escape($key) ?>]" type="<?= $field['type'] === 'email' ? 'email' : 'text' ?>" value="<?= ps_escape($legalValues[$key]) ?>" maxlength="8000"><?php endif; ?><small><?= ps_escape($field['hint']) ?></small></label><?php endforeach; ?></div><button class="button" type="submit">Сохранить реквизиты и условия</button></form></details>
@@ -113,6 +129,7 @@ function ps_admin_csrf(): void { echo '<input type="hidden" name="csrf" value="'
 <?php endforeach; ?></section>
 <?php elseif ($tab === 'settings'): ?>
 <section class="cms-panel"><h2>Тест на ресурсность и amoCRM</h2><p>Расшифровку теста делает лично Алёна Савинова. Кнопки сайта сразу открывают Яндекс Форму; ссылку можно заменить ниже.</p><form method="post" action="/admin/?tab=settings"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="settings"><label>Ссылка на Яндекс Форму<input type="url" name="test_url" placeholder="https://forms.yandex.ru/..." value="<?= ps_escape(($content['resourceTestUrl'] ?? '') ?: ($manifest['resourceTestUrl'] ?? '')) ?>"></label><label>Новый токен отдельной интеграции amoCRM<input type="password" name="amo_token" autocomplete="off" value="" placeholder="Оставьте пустым, чтобы сохранить текущее подключение"></label><p class="cms-note">Аккаунт фиксирован: savinovaa18.amocrm.ru. Токен сохраняется вне public_html; в HTML, JavaScript и Git он не попадает. Адаптер создаёт только новые заявки в «Неразобранном», не изменяет существующие сущности.</p><button class="button" type="submit">Сохранить настройки</button></form><hr><p>amoCRM: <?= empty($cfg['amo_token']) ? 'не подключена' : 'токен установлен' ?>. Форма: приём заявок включён; проверьте реквизиты и утвердите документы.</p><form method="post" action="/admin/?tab=settings"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="crm_check"><button class="button button-light" type="submit">Проверить подключение без записи в CRM</button></form></section>
+<section class="cms-panel cms-account-panel"><h2>Доступ к админ-панели</h2><p>Логин: <strong><?= ps_escape($cfg['admin']['username']) ?></strong>. Новый пароль задаёт владелец. Смена пароля завершает доступ старых сессий в других браузерах и не меняет интеграцию amoCRM.</p><form method="post" action="/admin/?tab=settings"><?php ps_admin_csrf(); ?><input type="hidden" name="action" value="account_password"><label>Текущий пароль<input type="password" name="current_password" autocomplete="current-password" required></label><label>Новый пароль<input type="password" name="new_password" minlength="14" maxlength="200" autocomplete="new-password" required></label><label>Повторите новый пароль<input type="password" name="repeat_password" minlength="14" maxlength="200" autocomplete="new-password" required></label><button class="button button-light" type="submit">Изменить пароль</button></form></section>
 <?php else: ?>
 <section class="cms-panel"><h2>Заявки сайта</h2><p>Здесь показаны только заявки этого сайта. Существующие сделки и контакты amoCRM не импортируются и не редактируются. Заявки с неопределённым результатом доставки нужно проверить вручную: автоматической повторной отправки нет.</p>
 <?php $files = glob(PS_PRIVATE . '/lead-*.json') ?: []; rsort($files); if (!$files): ?><p>Заявок пока нет.</p><?php endif; foreach (array_slice($files, 0, 100) as $file): $lead = json_decode((string)file_get_contents($file), true) ?: []; ?>

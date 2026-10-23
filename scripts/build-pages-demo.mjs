@@ -257,9 +257,13 @@ if (!serverForms) for (const [alias,target] of [["kontakty","contacts"],["o-cent
 await writeFile(join(output, "404.html"), layout("Страница не найдена", `<main>${header()}<section class="legal-copy"><h1>Страница не найдена</h1><p><a class="button" href="${base}">Вернуться на главную</a></p></section>${footer()}</main>`, "Страница не найдена", "404", null, false));
 if (serverForms) {
   await writeFile(join(output,".site-manifest.json"),JSON.stringify({pages:manifestPages,legal:legalTemplates,resourceTestUrl:siteCopy.resourceTestUrl,documents:Object.fromEntries(legalDocumentDefinitions.map(doc=>[doc.slug,doc])),specialists:specialistProfiles.map(({slug,name,format})=>({slug,name,format}))},null,2));
-  for (const [src,dest] of [["runtime.php","site-runtime.php"],["admin.php","beget-admin.php"],["admin.css","beget-admin.css"],["site-ui.js","site-ui.js"],["htaccess",".htaccess"],["dev-router.php","dev-router.php"]]) await cp(join(root,"beget",src),join(output,dest));
+  for (const [src,dest] of [["runtime.php","site-runtime.php"],["admin.php","beget-admin.php"],["admin.css","beget-admin.css"],["editor.php","beget-editor.php"],["editor-ui.php","beget-editor-ui.php"],["admin.js","beget-admin.js"],["site-ui.js","site-ui.js"],["htaccess",".htaccess"],["dev-router.php","dev-router.php"]]) await cp(join(root,"beget",src),join(output,dest));
   await cp(join(root,"public","googlef2660784658c6c2f.html"),join(output,"googlef2660784658c6c2f.html"));
   await cp(join(root,"public","llms.txt"),join(output,".llms-source.txt"));
+  const {existsSync}=await import('node:fs');
+  if(existsSync(join(root,'docs/admin-guide.pdf')))await cp(join(root,'docs/admin-guide.pdf'),join(output,'.admin-instruction.pdf'));
+  const {execFile} = await import('node:child_process');
+  await new Promise((resolve,reject)=>execFile('php',[join(root,'scripts/build-cms-schema.php'),output],(error,stdout,stderr)=>error?reject(new Error(stderr||error.message)):resolve(stdout)));
 }
 
 console.log(output);

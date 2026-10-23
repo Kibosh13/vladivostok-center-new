@@ -7,6 +7,7 @@ define('PS_BOOTSTRAPPED', true);
 define('PS_DEV', getenv('PS_DEV') === '1');
 define('PS_ORIGIN', PS_DEV ? 'http://127.0.0.1:3002' : 'https://putksebevladivostok.ru');
 define('PS_PRIVATE', getenv('PS_PRIVATE_DIR') ?: dirname(__DIR__) . '/.put-k-sebe-private');
+require __DIR__ . '/beget-editor.php';
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('X-Frame-Options: SAMEORIGIN');
@@ -54,6 +55,8 @@ function ps_csrf_ok(string $token): bool {
 function ps_is_admin(): bool {
     ps_session();
     if (empty($_SESSION['admin']) || (int)($_SESSION['admin_at'] ?? 0) < time() - 1800) return false;
+    $admin=ps_json_read('config')['admin']??[];
+    if(empty($admin['password_hash']) || !hash_equals(hash('sha256',$admin['password_hash']),(string)($_SESSION['admin_fingerprint']??'')))return false;
     $_SESSION['admin_at'] = time(); return true;
 }
 function ps_rate_limit(string $kind, int $max, int $window): bool {
@@ -182,12 +185,19 @@ try {
     $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
     if (str_contains(rawurldecode($uri), '..') || str_contains($uri, '\\')) { http_response_code(404); exit; }
     $path = trim($uri, '/');
+    $preview = $path === 'admin/preview';
+    if ($preview) {
+        if (!ps_is_admin()) { http_response_code(401); header('Cache-Control: no-store'); echo 'Войдите в админ-панель для просмотра черновика.'; exit; }
+        $path = (string)($_GET['page'] ?? '');
+        header('X-Robots-Tag: noindex, nofollow');
+    }
+    $manifest = ps_cms_manifest($manifest, $preview || $path==='admin' || str_starts_with($path,'admin/'));
     $aliases = ['socialnye-seti' => 'contacts', 'kontakty' => 'contacts', 'o-centre' => 'osnovatel'];
     $route = $aliases[$path] ?? $path;
     if (str_ends_with($route, '/index.html')) $route = substr($route, 0, -11);
     if ($route === 'index.html') $route = '';
     $isPublicPage = isset($manifest['pages'][$route]) || isset($aliases[$path]);
-    if (!PS_DEV && (($_SERVER['HTTP_HOST'] ?? '') !== 'putksebevladivostok.ru' || isset($aliases[$path]) || ($isPublicPage && $uri !== '/' . ($route !== '' ? $route . '/' : '')) || $path === 'admin' && $uri !== '/admin/')) {
+    if (!$preview && !PS_DEV && (($_SERVER['HTTP_HOST'] ?? '') !== 'putksebevladivostok.ru' || isset($aliases[$path]) || ($isPublicPage && $uri !== '/' . ($route !== '' ? $route . '/' : '')) || $path === 'admin' && $uri !== '/admin/')) {
         if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'], true)) ps_response(['error' => 'Используйте основной HTTPS-адрес сайта'], 421);
         $target = $isPublicPage || $path === 'admin' ? '/' . ($route !== '' ? $route . '/' : '') : $uri;
         header('Location: ' . PS_ORIGIN . $target, true, 301); exit;
@@ -219,6 +229,14 @@ try {
     }
     $page = $manifest['pages'][$route];
     $html = (string)file_get_contents(__DIR__ . '/' . $page['file']);
+    if (isset($page['source'])) {
+        $sourceUrl='https://putksebevladivostok.ru/'.($page['source']!==''?$page['source'].'/':'');
+        $html=str_replace($sourceUrl,'https://putksebevladivostok.ru/'.$route.'/',$html);
+        if(str_starts_with($route,'specialisty/'))$html=str_replace('data-specialist="'.substr($page['source'],12).'"','data-specialist="'.substr($route,12).'"',$html);
+        $html=preg_replace_callback('/<title>.*?<\/title>/s',fn()=>'<title>'.ps_escape($page['title']).'</title>',$html,1);
+    }
+    $html = ps_cms_render($html, $route, $preview);
+    $html = ps_cms_metadata($html,$route,$manifest,$preview);
     if (isset($manifest['documents'][$route])) {
         $doc = ps_document_data($route, $content);
         if (!ps_document_ready($route, $content)) {
@@ -237,12 +255,19 @@ try {
     $seo = $content['seo'][$route] ?? [];
     if (!empty($seo['title'])) $html = preg_replace_callback('/<title>.*?<\/title>/s', fn() => '<title>' . ps_escape($seo['title']) . '</title>', $html, 1);
     if (!empty($seo['description'])) $html = preg_replace_callback('/<meta name="description" content="[^"]*">/', fn() => '<meta name="description" content="' . ps_escape($seo['description']) . '">', $html, 1);
+    foreach(['title','description'] as $key)if(!empty($seo[$key]))$html=preg_replace_callback('/<meta (?:property|name)="(?:og:|twitter:)'.$key.'" content="[^"]*">/',fn($m)=>preg_replace('/content="[^"]*"/','content="'.ps_escape($seo[$key]).'"',$m[0]),$html);
     $testUrl = (string)(($content['resourceTestUrl'] ?? '') ?: ($manifest['resourceTestUrl'] ?? ''));
     if ($testUrl !== '') {
         $html = preg_replace_callback('/data-resource-test-link href="[^"]*"/', fn() => 'data-resource-test-link href="' . ps_escape($testUrl) . '"', $html);
         $html = str_replace('<!--TEST_ACTION-->', '<a class="button" href="' . ps_escape($testUrl) . '" target="_blank" rel="noreferrer">Пройти тест →</a>', $html);
     } else $html = str_replace('<!--TEST_ACTION-->', '<p class="resource-note">Ссылка на Яндекс Форму скоро появится.</p>', $html);
-    header('Content-Type: text/html; charset=utf-8'); header('Cache-Control: public, max-age=60, must-revalidate');
+    if ($preview) {
+        $html=str_replace('data-site-target="beget"','data-site-target="preview"',$html);
+        $html=preg_replace('/<script\b[^>]*src="\/(?:site-ui|demo)\.js[^>]*><\/script>/','',$html);
+        $html=str_replace('<fieldset class="booking-fields">','<fieldset class="booking-fields" disabled>',$html);
+        $html=preg_replace('/<meta name="robots" content="[^"]*">/','<meta name="robots" content="noindex,nofollow">',$html);
+    }
+    header('Content-Type: text/html; charset=utf-8'); header('Cache-Control: '.($preview?'no-store':'public, max-age=0, must-revalidate'));
     echo $html;
 } catch (Throwable $error) {
     // Never disclose stack traces, credentials, client details or upstream response bodies.
