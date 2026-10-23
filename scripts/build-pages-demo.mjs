@@ -260,8 +260,6 @@ if (serverForms) {
   for (const [src,dest] of [["runtime.php","site-runtime.php"],["admin.php","beget-admin.php"],["admin.css","beget-admin.css"],["editor.php","beget-editor.php"],["editor-ui.php","beget-editor-ui.php"],["admin.js","beget-admin.js"],["site-ui.js","site-ui.js"],["htaccess",".htaccess"],["dev-router.php","dev-router.php"]]) await cp(join(root,"beget",src),join(output,dest));
   await cp(join(root,"public","googlef2660784658c6c2f.html"),join(output,"googlef2660784658c6c2f.html"));
   await cp(join(root,"public","llms.txt"),join(output,".llms-source.txt"));
-  const {existsSync}=await import('node:fs');
-  if(existsSync(join(root,'docs/admin-guide.pdf')))await cp(join(root,'docs/admin-guide.pdf'),join(output,'.admin-instruction.pdf'));
   const {execFile} = await import('node:child_process');
   await new Promise((resolve,reject)=>execFile('php',[join(root,'scripts/build-cms-schema.php'),output],(error,stdout,stderr)=>error?reject(new Error(stderr||error.message)):resolve(stdout)));
 }

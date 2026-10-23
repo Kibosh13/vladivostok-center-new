@@ -7,11 +7,7 @@ ps_session();
 $cfg = ps_json_read('config');
 $message = '';
 $isAdmin = ps_is_admin();
-if ($isAdmin && trim(parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH),'/') === 'admin/instruction') {
-    $guide=__DIR__.'/.admin-instruction.pdf';
-    if(is_file($guide)){header('Content-Type: application/pdf');header('Content-Disposition: inline; filename="put-k-sebe-admin-guide.pdf"');readfile($guide);exit;}
-    $message='PDF-инструкция пока не загружена. Основные шаги доступны в разделе «Помощь».';
-}
+if (trim(parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH),'/') === 'admin/instruction') { http_response_code(404); echo 'Страница не найдена.'; exit; }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!ps_csrf_ok((string)($_POST['csrf'] ?? ''))) { http_response_code(403); $message = 'Обновите страницу: проверка безопасности не пройдена.'; }
     else {
